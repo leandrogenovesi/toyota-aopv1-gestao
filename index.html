@@ -1432,10 +1432,7 @@ function renderTrendChart(){
     data:Array.from({length:6},(_,i)=>{
       const d=new Date(now.getFullYear(),now.getMonth()-5+i,1);
       const ms=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-      return kadais.filter(k=>k.consultantId===u.uid&&k.status==='done'&&k.updatedAt?.seconds){
-        const dt=new Date(k.updatedAt.seconds*1000);
-        return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`===ms;
-      }).length;
+      return kadais.filter(k=>k.consultantId===u.uid&&k.status==='done'&&k.updatedAt?.seconds&&(()=>{const dt=new Date(k.updatedAt.seconds*1000);return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`===ms;})()).length;
     }),
     borderColor:u.color||'#666',backgroundColor:(u.color||'#666')+'33',
     tension:.4,fill:false,borderWidth:2,pointRadius:3,
