@@ -737,12 +737,12 @@ import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateD
 // ⚙️  CONFIGURE O SEU FIREBASE AQUI
 // ══════════════════════════════════
 const firebaseConfig = {
-  apiKey:            "COLE_SUA_API_KEY",
-  authDomain:        "COLE_SEU_AUTH_DOMAIN",
-  projectId:         "COLE_SEU_PROJECT_ID",
-  storageBucket:     "COLE_SEU_STORAGE_BUCKET",
-  messagingSenderId: "COLE_SEU_MESSAGING_SENDER_ID",
-  appId:             "COLE_SEU_APP_ID"
+  apiKey:            "AIzaSyAxhHyQlqvUo8Hk3cmWeStxgFbwf2_Jo5U",
+  authDomain:        "toyota-aopv1-gestao.firebaseapp.com",
+  projectId:         "toyota-aopv1-gestao",
+  storageBucket:     "toyota-aopv1-gestao.firebasestorage.app",
+  messagingSenderId: "168108469153",
+  appId:             "1:168108469153:web:c85ddbc179aadf24b079e0"
 };
 // ══════════════════════════════════
 
@@ -1412,7 +1412,7 @@ async function renderCompTable(){
       </div></td>
       <td style="font-size:11px;color:var(--text-2)">${meta}</td>
       <td><span style="color:${open>5?'var(--amber)':'var(--text-1)'}">${open}</span></td>
-      <td><span style="color:${ov>0?'var(--danger)':'var(--green)';font-weight:ov>0?600:400}">${ov>0?'⚠ '+ov:'✓ 0'}</span></td>
+      <td><span style="color:${ov>0?'var(--danger)':'var(--green)'};font-weight:${ov>0?600:400}">${ov>0?'⚠ '+ov:'✓ 0'}</span></td>
       <td style="font-size:11px">${gOk}/${gTotal}</td>
       <td style="font-size:11px;font-family:var(--font-m);color:var(--text-3)">—</td>
       <td style="font-size:14px">${hu?hu.emoji+'<span style="font-size:10px;color:var(--text-3);margin-left:4px">'+hu.label+'</span>':'—'}</td>
