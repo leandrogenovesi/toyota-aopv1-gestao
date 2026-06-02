@@ -1530,13 +1530,7 @@ function populateGanttFilter(){
   if(cur)sel.value=cur;
 }
 
-function populateGanttFilter(){
-  const sel=$('gantt-filter-cons');if(!sel)return;
-  const cur=sel.value;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin');
-  sel.innerHTML=`<option value="">Todos os Consultores</option>`+cs.map(u=>`<option value="${u.uid}">${u.name}</option>`).join('');
-  if(cur)sel.value=cur;
-}
+
 
 document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 </script>
