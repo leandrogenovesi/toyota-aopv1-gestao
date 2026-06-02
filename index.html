@@ -12,7 +12,7 @@
   --bg0:#08090b;--bg1:#0e1016;--bg2:#141720;--bg3:#1a1f2e;--bg4:#202535;
   --bd:#1e2436;--bdl:#2d3650;
   --red:#e50000;--redg:#e5000033;
-  --t1:#eef0f7;--t2:#7a869e;--t3:#3a4258;
+  --t1:#eef0f7;--t2:#9aa5bc;--t3:#5a6480;
   --green:#22c55e;--amber:#f59e0b;--danger:#ef4444;--blue:#3b82f6;--cyan:#06b6d4;
   --fd:'Rajdhani',sans-serif;--fb:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;
   --tr:.18s cubic-bezier(.4,0,.2,1);
@@ -112,16 +112,16 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .kpi.red::before{background:var(--red)}.kpi.green::before{background:var(--green)}
 .kpi.amber::before{background:var(--amber)}.kpi.blue::before{background:var(--blue)}.kpi.cyan::before{background:var(--cyan)}
-.kpi-lbl{font-size:10px;font-family:var(--fm);letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.kpi-lbl{font-size:10px;font-family:var(--fm);letter-spacing:1.5px;text-transform:uppercase;color:var(--t2);margin-bottom:10px;font-weight:600}
 .kpi-val{font-family:var(--fd);font-size:36px;font-weight:700;line-height:1}
-.kpi-sub{font-size:11px;color:var(--t2);margin-top:6px}
+.kpi-sub{font-size:11px;color:var(--t1);margin-top:6px;opacity:.7}
 .dash-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
 @media(max-width:900px){.dash-row{grid-template-columns:1fr}}
 .alert-item{padding:11px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;font-size:12.5px;transition:var(--tr)}
 .alert-item:last-child{border-bottom:none}
 .alert-item:hover{background:var(--bg4)}
 .alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.alert-time{font-size:10px;font-family:var(--fm);color:var(--t3);flex-shrink:0}
+.alert-time{font-size:10px;font-family:var(--fm);color:var(--t2);flex-shrink:0}
 
 /* CALENDAR */
 .cal-ctrl{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
@@ -135,24 +135,24 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 .fchip{padding:4px 13px;border-radius:99px;font-size:11px;font-weight:600;border:2px solid;transition:var(--tr);opacity:.4;cursor:pointer;background:transparent}
 .fchip.on{opacity:1}
 .cal-week{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden}
-.cwh{display:grid;grid-template-columns:90px repeat(7,1fr);border-bottom:1px solid var(--bd)}
-.cwhc{padding:10px 6px;font-size:10px;font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;color:var(--t3);text-align:center;border-right:1px solid var(--bd)}
+.cwh{display:grid;grid-template-columns:90px repeat(7,minmax(0,1fr));border-bottom:1px solid var(--bd)}
+.cwhc{padding:10px 6px;font-size:10px;font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;color:var(--t2);text-align:center;border-right:1px solid var(--bd);font-weight:700}
 .cwhc:last-child{border-right:none}.cwhc.today{color:var(--red)}
-.cwrow{display:grid;grid-template-columns:90px repeat(7,1fr);border-bottom:1px solid var(--bd);min-height:64px}
+.cwrow{display:grid;grid-template-columns:90px repeat(7,minmax(0,1fr));border-bottom:1px solid var(--bd);min-height:64px}
 .cwrow:last-child{border-bottom:none}
-.cwlabel{padding:10px 8px;font-size:11px;font-family:var(--fm);color:var(--t3);border-right:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:center;padding-top:14px}
-.cwcell{padding:5px 4px;border-right:1px solid var(--bd);min-height:64px;display:flex;flex-direction:column;gap:3px}
+.cwlabel{padding:10px 8px;font-size:11px;font-family:var(--fm);color:var(--t2);border-right:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:center;padding-top:14px}
+.cwcell{padding:5px 4px;border-right:1px solid var(--bd);min-height:64px;display:flex;flex-direction:column;gap:3px;overflow:hidden;min-width:0}
 .cwcell:last-child{border-right:none}.cwcell.today{background:rgba(229,0,0,.03)}
-.cev{padding:3px 7px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:var(--tr);border-left:3px solid}
+.cev{padding:3px 7px;border-radius:4px;font-size:11px;font-weight:600;white-space:normal;word-break:break-word;overflow:hidden;cursor:pointer;transition:var(--tr);border-left:3px solid;line-height:1.3}
 .cev:hover{filter:brightness(1.15);transform:translateX(1px)}.cev.vacation{opacity:.65;border-style:dashed}
 .cal-month{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden}
 .cmh{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--bd)}
 .cmhc{padding:10px;font-size:10px;font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;color:var(--t3);text-align:center;border-right:1px solid var(--bd)}
 .cmhc:last-child{border-right:none}
 .cmbody{display:grid;grid-template-columns:repeat(7,1fr)}
-.cmcell{border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);min-height:100px;padding:7px}
+.cmcell{border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);min-height:100px;padding:7px;overflow:hidden;min-width:0}
 .cmcell:nth-child(7n){border-right:none}.cmcell.om .cdn{opacity:.3}.cmcell.today{background:rgba(229,0,0,.03)}
-.cdn{font-family:var(--fd);font-size:13px;font-weight:600;color:var(--t2);margin-bottom:4px}
+.cdn{font-family:var(--fd);font-size:13px;font-weight:700;color:var(--t1);margin-bottom:4px}
 .cmcell.today .cdn{color:var(--red);font-size:15px}
 
 /* KANBAN */
@@ -167,10 +167,10 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 .kb-card{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--rm);padding:11px 13px;cursor:pointer;transition:var(--tr);border-left:4px solid}
 .kb-card:hover{background:var(--bg4);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.35)}
 .kb-card.overdue{border-left-color:var(--danger)!important}
-.kb-ct{font-size:12.5px;font-weight:500;margin-bottom:8px;line-height:1.4}
+.kb-ct{font-size:12.5px;font-weight:700;margin-bottom:8px;line-height:1.4;color:var(--t1)}
 .kb-meta{display:flex;align-items:center;justify-content:space-between;gap:6px}
 .kb-tag{font-size:10px;font-family:var(--fm);padding:2px 7px;border-radius:99px;font-weight:600}
-.kb-due{font-size:10px;font-family:var(--fm);color:var(--t3);display:flex;align-items:center;gap:3px}
+.kb-due{font-size:10px;font-family:var(--fm);color:var(--t2);display:flex;align-items:center;gap:3px}
 .kb-due.ov{color:var(--danger)}
 .kb-card.done{opacity:.5}.kb-card.done .kb-ct{text-decoration:line-through;color:var(--t2)}
 .kb-add{margin:8px;padding:8px;background:transparent;border:1px dashed var(--bd);border-radius:var(--r);color:var(--t3);font-size:12px;text-align:center;transition:var(--tr)}
@@ -224,7 +224,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 .notif-item:last-child{border-bottom:none}
 .notif-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:var(--bg3)}
 .notif-body{flex:1}
-.notif-text{font-size:12.5px;line-height:1.5}
+.notif-text{font-size:12.5px;line-height:1.5;font-weight:500;color:var(--t1)}
 .notif-time{font-size:10px;font-family:var(--fm);color:var(--t3);margin-top:3px}
 .notif-dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:4px}
 .notif-section-title{padding:10px 18px;font-size:10px;font-family:var(--fm);letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);background:var(--bg1);border-bottom:1px solid var(--bd)}
@@ -244,7 +244,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 .chart-body{padding:16px;height:260px;position:relative}
 .chart-body.tall{height:320px}
 .comp-table{width:100%;border-collapse:collapse}
-.comp-table th{padding:10px 14px;font-size:10px;font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;color:var(--t3);background:var(--bg1);text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+.comp-table th{padding:10px 14px;font-size:10px;font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;color:var(--t2);background:var(--bg1);text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap;font-weight:700}
 .comp-table td{padding:11px 14px;border-bottom:1px solid var(--bd);font-size:12.5px;vertical-align:middle}
 .comp-table tr:last-child td{border-bottom:none}
 .comp-table tr:hover td{background:var(--bg4)}
@@ -257,7 +257,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 .cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 /* LOG */
 .log-toolbar{padding:12px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.log-item{padding:10px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;font-size:12px}
+.log-item{padding:10px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--t1)}
 .log-item:last-child{border-bottom:none}
 .log-item:hover{background:var(--bg4)}
 /* META */
@@ -272,7 +272,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 .user-row:hover{background:var(--bg4)}
 .ur-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:var(--fd);flex-shrink:0}
 .ur-info{flex:1}
-.ur-name{font-size:13px;font-weight:500}
+.ur-name{font-size:13px;font-weight:700}
 .ur-email{font-size:10px;color:var(--t3);font-family:var(--fm);margin-top:1px}
 .ur-actions{display:flex;gap:5px;align-items:center}
 
@@ -309,6 +309,23 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 .empty-txt{font-size:12.5px;line-height:1.6}
 @media(max-width:768px){.panel{padding:14px}.kb-board{flex-direction:column}.kb-col{min-width:100%;max-width:100%}}
 @media(max-width:480px){.dash-grid{grid-template-columns:1fr}.login-box{padding:32px 22px;width:96vw}}
+
+/* COLOR PICKER INLINE */
+.color-picker-wrap{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.cpick{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:var(--tr);flex-shrink:0}
+.cpick:hover{transform:scale(1.15)}
+.cpick.sel{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.3)}
+/* USER COLOR EDIT */
+.user-row .color-dot{width:14px;height:14px;border-radius:50%;cursor:pointer;flex-shrink:0;border:1px solid rgba(255,255,255,.2);transition:var(--tr)}
+.user-row .color-dot:hover{transform:scale(1.2)}
+
+/* GANTT GROUP HEADER */
+.gantt-group-header td{background:var(--bg1)!important;padding:8px 14px!important;font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:.5px;border-bottom:2px solid var(--bdl)!important}
+.gantt-group-header td.gcol-name{background:var(--bg1)!important}
+/* CATEGORY TAG */
+.cat-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;font-size:12px;font-weight:600;font-family:var(--fm);background:var(--bg3);border:1px solid var(--bdl);color:var(--t1)}
+.cat-tag button{background:transparent;border:none;color:var(--t3);cursor:pointer;font-size:14px;line-height:1;padding:0;transition:var(--tr)}
+.cat-tag button:hover{color:var(--danger)}
 </style>
 </head>
 <body>
@@ -411,6 +428,16 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
     <!-- GANTT -->
     <div class="panel" id="panel-gantt">
       <div class="ph"><div class="pt">Cronograma de <span>Entregas</span></div><button class="btn-add" onclick="openGModal()">+ Nova Atividade</button></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+        <span style="font-size:11px;font-family:var(--fm);color:var(--t2);letter-spacing:1px">FILTRAR:</span>
+        <select class="si" id="gantt-filter-cons" onchange="renderGantt()"><option value="">Todos os Consultores</option></select>
+        <select class="si" id="gantt-filter-status" onchange="renderGantt()">
+          <option value="">Todos os Status</option>
+          <option value="on_track">No Prazo</option>
+          <option value="delayed">Atrasado</option>
+          <option value="done">Concluído</option>
+        </select>
+      </div>
       <div id="gantt-body"></div>
     </div>
 
@@ -467,12 +494,39 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
         <div class="card-h">🎯 Metas de Visitas Mensais <button class="btn-add" onclick="openMo('mo-meta')" style="font-size:11px;padding:5px 12px">Definir Meta</button></div>
         <div id="meta-body"></div>
       </div>
+      <!-- categorias -->
+      <div class="card" style="margin-top:16px">
+        <div class="card-h">🏷 Categorias de Kadai
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="fi" type="text" id="cat-new-input" placeholder="Nova categoria..." style="width:180px;padding:6px 12px;font-size:12px">
+            <button class="btn-add" onclick="addCategory()" style="font-size:11px;padding:6px 14px">+ Adicionar</button>
+          </div>
+        </div>
+        <div id="cat-list" style="padding:14px 18px;display:flex;flex-wrap:wrap;gap:8px"></div>
+      </div>
     </div>
 
   </div>
 </div>
 
 <!-- MODALS -->
+
+<!-- COLOR MODAL -->
+<div class="mo" id="mo-color">
+  <div class="modal" style="max-width:320px">
+    <div class="mh"><div class="mt">Cor do Consultor</div><button class="mx" onclick="closeMo('mo-color')">×</button></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Escolha uma cor</label>
+        <div class="color-picker-wrap" id="color-picker-swatches"></div>
+      </div>
+      <div class="fg"><label class="fl">Ou cor personalizada (hex)</label>
+        <input class="fi" type="color" id="color-custom" style="height:44px;cursor:pointer;padding:4px">
+      </div>
+    </div>
+    <div class="mf"><button class="btn-sec" onclick="closeMo('mo-color')">Cancelar</button><button class="btn-sub" onclick="saveUserColor()">Salvar</button></div>
+  </div>
+</div>
+
 <div class="mo" id="mo-ev">
   <div class="modal">
     <div class="mh"><div class="mt" id="mo-ev-t">Nova Entrada</div><button class="mx" onclick="closeMo('mo-ev')">×</button></div>
@@ -504,7 +558,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
         <div class="cmt-row"><input class="cmt-input" type="text" id="k-cmt-in" placeholder="Adicionar comentário..."><button class="btn-sub" onclick="addCmt()" style="padding:8px 14px;font-size:12px">Enviar</button></div>
       </div>
     </div>
-    <div class="mf"><button class="btn-del" id="k-del" onclick="delK()" style="display:none">Excluir</button><button class="btn-sec" onclick="closeMo('mo-k')">Cancelar</button><button class="btn-sub" onclick="saveK()">Salvar</button></div>
+    <div class="mf"><button class="btn-del" id="k-del" onclick="delK()" style="display:none">Excluir</button><button class="btn-sec" onclick="closeMo('mo-k')" style="display:inline-flex!important;visibility:visible!important">Cancelar</button><button class="btn-sub" onclick="saveK()">Salvar</button></div>
   </div>
 </div>
 
@@ -571,6 +625,8 @@ let showDone={};
 let gColor='#3b82f6';
 let charts={};
 let coordFilterUid=null;
+let categories=[];
+let editingColorUid=null;
 let showReadNotifs=false;
 let unsubFns=[];
 
@@ -647,7 +703,7 @@ async function initApp(){
 function subAll(){
   unsubFns.push(onSnapshot(collection(db,'users'),snap=>{
     users={};snap.forEach(d=>users[d.id]={...d.data(),uid:d.id});
-    updateAdminBdg();populateSels();renderCalChips();renderKanban();renderAdmin();renderMetas();renderCompTable();buildCoordFilter();
+    updateAdminBdg();populateSels();renderCalChips();renderKanban();renderAdmin();renderMetas();renderCompTable();buildCoordFilter();populateGanttFilter();
   }));
   unsubFns.push(onSnapshot(collection(db,'events'),snap=>{
     events=snap.docs.map(d=>({...d.data(),id:d.id}));renderCal();renderDashWeek();generateAlerts();
@@ -665,7 +721,8 @@ function subAll(){
   unsubFns.push(onSnapshot(collection(db,'metas'),snap=>{
     metas={};snap.forEach(d=>metas[d.id]=d.data());renderMetas();renderCompTable();renderCharts();
   }));
-  unsubFns.push(onSnapshot(collection(db,'logs'),snap=>{
+  subCategories();
+    unsubFns.push(onSnapshot(collection(db,'logs'),snap=>{
     logs=snap.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,100);
     renderLog();populateLogFilter();
   }));
@@ -690,6 +747,7 @@ function populateSels(){
   const gc=$('g-cons');if(gc){const cur=gc.value;gc.innerHTML=`<option value="">Time</option>`+cs.map(u=>`<option value="${u.uid}">${u.name}</option>`).join('');if(cur)gc.value=cur;}
   const kfc=$('kf-c');if(kfc){const cur=kfc.value;kfc.innerHTML=`<option value="">Todos os Consultores</option>`+cs.map(u=>`<option value="${u.uid}">${u.name}</option>`).join('');if(cur)kfc.value=cur;}
   const mc=$('meta-cons');if(mc)mc.innerHTML=cs.map(u=>`<option value="${u.uid}">${u.name}</option>`).join('');
+  populateCatSelects();
 }
 
 window.renderAdmin=()=>{
@@ -698,7 +756,7 @@ window.renderAdmin=()=>{
   const act=Object.values(users).filter(u=>u.status==='active'||u.status==='inactive');
   $('pend-list').innerHTML=pend.length===0?`<div class="empty" style="padding:20px"><div class="empty-txt">Nenhuma solicitação</div></div>`
     :pend.map(u=>`<div class="user-row"><div class="ur-av" style="background:${u.color||'#666'}">${initials(u.name)}</div><div class="ur-info"><div class="ur-name">${u.name}</div><div class="ur-email">${u.email}</div></div><div class="ur-actions"><button class="btn-sm btn-ok" onclick="approveU('${u.uid}')">Aprovar</button><button class="btn-sm btn-rej" onclick="rejectU('${u.uid}')">Rejeitar</button></div></div>`).join('');
-  $('users-list').innerHTML=act.map(u=>`<div class="user-row"><div class="ur-av" style="background:${u.color||'#666'}">${initials(u.name)}</div><div class="ur-info"><div class="ur-name">${u.name}</div><div class="ur-email">${u.email}</div></div><div class="ur-actions"><span class="badge ${u.role==='coordinator'||u.role==='admin'?'b-coord':u.status==='active'?'b-active':'b-inactive'}">${u.role==='coordinator'||u.role==='admin'?'Coord':u.status==='active'?'Ativo':'Inativo'}</span>${u.uid!==CU.uid?`<button class="btn-sm btn-dis" onclick="toggleU('${u.uid}','${u.status}')">${u.status==='active'?'Desativar':'Ativar'}</button>`:''}</div></div>`).join('');
+  $('users-list').innerHTML=act.map(u=>`<div class="user-row"><div class="ur-av" style="background:${u.color||'#666'}">${initials(u.name)}</div><div class="ur-info"><div class="ur-name">${u.name}</div><div class="ur-email">${u.email}</div></div><div class="ur-actions"><div class="color-dot" style="background:${u.color||'#3b82f6'}" onclick="openColorModal('${u.uid}')" title="Editar cor"></div><span class="badge ${u.role==='coordinator'||u.role==='admin'?'b-coord':u.status==='active'?'b-active':'b-inactive'}">${u.role==='coordinator'||u.role==='admin'?'Coord':u.status==='active'?'Ativo':'Inativo'}</span>${u.uid!==CU.uid?`<button class="btn-sm btn-dis" onclick="toggleU('${u.uid}','${u.status}')">${u.status==='active'?'Desativar':'Ativar'}</button>`:''}</div></div>`).join('');
 };
 window.approveU=async uid=>{await updateDoc(doc(db,'users',uid),{status:'active'});await pushNotif(uid,'Seu acesso foi aprovado!','✅');showToast('Aprovado!','ok');};
 window.rejectU=async uid=>{await updateDoc(doc(db,'users',uid),{status:'inactive'});showToast('Rejeitado.','inf');};
@@ -1160,6 +1218,217 @@ window.go=tab=>{
   if(tab==='coord'){renderAdmin();renderMetas();renderCompTable();renderCharts();renderLog();}
   if(tab==='notif')renderNotifs();
 };
+
+
+// ── CATEGORIES ──
+const DEFAULT_CATS = ['treinamento','processo','auditoria','implantacao','followup','relatorio'];
+const DEFAULT_CAT_LABELS = {treinamento:'Treinamento',processo:'Processo',auditoria:'Auditoria',implantacao:'Implantação',followup:'Follow-up',relatorio:'Relatório'};
+
+function subCategories(){
+  unsubFns.push(onSnapshot(collection(db,'categories'),snap=>{
+    if(snap.empty){
+      categories=DEFAULT_CATS.map(k=>({id:k,label:DEFAULT_CAT_LABELS[k]||k}));
+    } else {
+      categories=snap.docs.map(d=>({id:d.id,...d.data()}));
+    }
+    renderCategoryList();
+    populateCatSelects();
+  }));
+}
+
+function populateCatSelects(){
+  const sel=$('k-cat');if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML=categories.map(c=>`<option value="${c.id}">${c.label}</option>`).join('');
+  if(cur)sel.value=cur;
+}
+
+function renderCategoryList(){
+  const cl=$('cat-list');if(!cl)return;
+  cl.innerHTML=categories.map(c=>`
+    <div class="cat-tag">
+      ${c.label}
+      <button onclick="deleteCategory('${c.id}')" title="Remover">×</button>
+    </div>`).join('');
+}
+
+window.addCategory=async()=>{
+  const inp=$('cat-new-input');
+  const label=inp.value.trim();
+  if(!label){showToast('Digite um nome.','err');return;}
+  const id=label.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,30)+'_'+Date.now();
+  try{
+    await setDoc(doc(db,'categories',id),{label,createdAt:serverTimestamp()});
+    inp.value='';showToast('Categoria adicionada!','ok');
+  }catch(e){showToast('Erro.','err');}
+};
+
+window.deleteCategory=async(id)=>{
+  if(!confirm('Remover esta categoria?'))return;
+  try{await deleteDoc(doc(db,'categories',id));showToast('Removida.','inf');}catch(e){showToast('Erro.','err');}
+};
+
+// ── USER COLOR ──
+const PRESET_COLORS=['#3b82f6','#10b981','#f59e0b','#a855f7','#06b6d4','#e50000','#f97316','#ec4899','#84cc16','#14b8a6'];
+
+window.openColorModal=(uid)=>{
+  editingColorUid=uid;
+  const u=users[uid];
+  const swatches=$('color-picker-swatches');
+  swatches.innerHTML=PRESET_COLORS.map(c=>`<div class="cpick${u?.color===c?' sel':''}" style="background:${c}" data-c="${c}" onclick="selectSwatch(this)"></div>`).join('');
+  $('color-custom').value=u?.color||'#3b82f6';
+  openMo('mo-color');
+};
+window.selectSwatch=(el)=>{
+  document.querySelectorAll('#color-picker-swatches .cpick').forEach(s=>s.classList.remove('sel'));
+  el.classList.add('sel');
+  $('color-custom').value=el.dataset.c;
+};
+window.saveUserColor=async()=>{
+  if(!editingColorUid)return;
+  const color=$('color-custom').value;
+  await updateDoc(doc(db,'users',editingColorUid),{color});
+  closeMo('mo-color');showToast('Cor atualizada!','ok');
+  // refresh calendar chips
+  renderCalChips();renderCal();renderKanban();
+};
+
+// ── GANTT GROUPED BY CONSULTANT ──
+const _origRenderGantt = window.renderGantt;
+window.renderGantt=()=>{
+  const c=$('gantt-body');if(!c)return;
+  if(!ganttTasks.length){c.innerHTML=`<div class="gantt-wrap"><div class="empty" style="padding:56px"><div class="empty-icon">📊</div><div class="empty-txt">Nenhuma atividade.<br>Clique em "+ Nova Atividade".</div></div></div>`;return;}
+  
+  const filterC=v('gantt-filter-cons')||null;
+  const filterS=v('gantt-filter-status')||null;
+  
+  let filteredTasks=ganttTasks;
+  if(filterC) filteredTasks=filteredTasks.filter(t=>t.consultantId===filterC||(!t.consultantId&&!filterC));
+  if(filterS) filteredTasks=filteredTasks.filter(t=>t.status===filterS);
+  
+  if(!filteredTasks.length){c.innerHTML=`<div class="gantt-wrap"><div class="empty" style="padding:40px"><div class="empty-icon">🔍</div><div class="empty-txt">Nenhuma atividade com estes filtros.</div></div></div>`;return;}
+
+  let mn=null,mx=null;
+  filteredTasks.forEach(t=>{if(t.planStart){const d=new Date(t.planStart+'T00:00');if(!mn||d<mn)mn=d;}if(t.planEnd){const d=new Date(t.planEnd+'T00:00');if(!mx||d>mx)mx=d;}});
+  if(!mn)mn=new Date();if(!mx)mx=new Date(mn.getFullYear(),mn.getMonth()+6,1);
+  mn=new Date(mn.getFullYear(),mn.getMonth(),1);mx=new Date(mx.getFullYear(),mx.getMonth()+1,0);
+
+  const weeks=[];let wd=new Date(mn);
+  while(wd<=mx){weeks.push(new Date(wd));wd=new Date(wd.getFullYear(),wd.getMonth(),wd.getDate()+7);}
+  const totalDays=(mx-mn)/86400000+1;
+  const dayPx=28;
+
+  const monthGroups=[];let curM=null;
+  weeks.forEach(w=>{const m=`${w.getFullYear()}-${w.getMonth()}`;if(m!==curM){monthGroups.push({label:`${MONTHS[w.getMonth()].substring(0,3)} ${w.getFullYear()}`,start:w,cols:0});curM=m;}monthGroups[monthGroups.length-1].cols++;});
+
+  const todayTs=new Date(today()+'T00:00').getTime();
+  const todayOff=Math.max(0,(todayTs-mn.getTime())/86400000)*dayPx;
+
+  function barStyle(t){
+    if(!t.planStart||!t.planEnd)return{planL:0,planW:0,actL:0,actW:0};
+    const ps=new Date(t.planStart+'T00:00').getTime(),pe=new Date(t.planEnd+'T00:00').getTime();
+    const planL=Math.max(0,(ps-mn.getTime())/86400000)*dayPx;
+    const planW=Math.max(4,((pe-ps)/86400000+1)*dayPx);
+    const prog=Math.min(100,Math.max(0,t.progress||0));
+    return{planL,planW,actL:planL,actW:(prog/100)*planW};
+  }
+
+  function taskRow(t,isSub){
+    const u=users[t.consultantId];const color=t.color||u?.color||'#3b82f6';
+    const del=t.status==='delayed',done=t.status==='done';
+    const bs=barStyle(t);
+    const pill=del?'<span class="gantt-status-pill pill-del">ATRASO</span>':done?'<span class="gantt-status-pill pill-done">DONE</span>':'<span class="gantt-status-pill pill-ok">OK</span>';
+    return `<tr class="${isSub?'gsub':''}">
+      <td class="gcol-name"><div class="gantt-name-cell${isSub?' gsub':''}">
+        <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
+        <div class="gantt-task-name${isSub?' gsub':''}" title="${t.name}">${t.name.length>26?t.name.substring(0,26)+'…':t.name}</div>
+        ${pill}
+        <button style="margin-left:auto;background:transparent;border:none;color:var(--t3);cursor:pointer;font-size:13px;padding:2px 5px" onclick="openGModal('${t.id}')">✎</button>
+      </div></td>
+      <td colspan="${weeks.length}" style="padding:0;position:relative;height:${isSub?36:44}px">
+        <div style="position:relative;height:100%;min-width:${totalDays*dayPx}px">
+          ${bs.planW>0?`<div class="gantt-bar-plan" style="left:${bs.planL}px;width:${bs.planW}px;background:${color}"></div>`:''}
+          ${bs.actW>0?`<div class="gantt-bar-actual${del?' delayed':done?' done':''}" style="left:${bs.actL}px;width:${bs.actW}px;background:${del?'var(--danger)':color}">
+            ${bs.actW>30?`<span class="gantt-pct">${t.progress||0}%</span>`:''}
+          </div>`:''}
+        </div>
+      </td></tr>`;
+  }
+
+  // Group by consultant
+  const consultants=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin');
+  const grouped=[];
+  
+  // Consultants with tasks
+  consultants.forEach(u=>{
+    const uTasks=filteredTasks.filter(t=>t.consultantId===u.uid&&!t.parentId);
+    if(!uTasks.length)return;
+    const children=id=>filteredTasks.filter(t=>t.parentId===id);
+    let rows='';
+    uTasks.forEach(p=>{rows+=taskRow(p,false);children(p.id).forEach(ch=>{rows+=taskRow(ch,true);});});
+    grouped.push({label:u.name,color:u.color||'#666',rows});
+  });
+  
+  // Tasks without consultant
+  const noConsultant=filteredTasks.filter(t=>!t.consultantId&&!t.parentId);
+  if(noConsultant.length){
+    let rows='';
+    noConsultant.forEach(p=>{rows+=taskRow(p,false);filteredTasks.filter(t=>t.parentId===p.id).forEach(ch=>{rows+=taskRow(ch,true);});});
+    grouped.push({label:'Time (sem responsável)',color:'#5a6480',rows});
+  }
+
+  let allRows='';
+  grouped.forEach(g=>{
+    allRows+=`<tr class="gantt-group-header">
+      <td class="gcol-name" colspan="1" style="padding:8px 14px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:10px;height:10px;border-radius:50%;background:${g.color}"></div>
+          <strong style="font-size:13px;letter-spacing:.5px">${g.label}</strong>
+        </div>
+      </td>
+      <td colspan="${weeks.length}" style="background:var(--bg1)!important;border-bottom:2px solid var(--bdl)!important"></td>
+    </tr>`;
+    allRows+=g.rows;
+  });
+
+  c.innerHTML=`<div class="gantt-wrap">
+    <div class="gantt-header"><span style="font-size:11px;color:var(--t2);font-family:var(--fm);font-weight:600">${filteredTasks.length} atividade(s) em ${grouped.length} grupo(s)</span></div>
+    <div class="gantt-container">
+      <table class="gantt-table">
+        <thead>
+          <tr>
+            <th class="gcol-name" rowspan="2" style="padding:10px 14px;text-align:left;font-size:10px;font-family:var(--fm);letter-spacing:1px;color:var(--t2);text-transform:uppercase;font-weight:700">Atividade</th>
+            ${monthGroups.map(m=>`<th colspan="${m.cols}" class="gantt-th-month">${m.label}</th>`).join('')}
+          </tr>
+          <tr>${weeks.map(w=>`<th class="gantt-th-week">${w.getDate()}/${w.getMonth()+1}</th>`).join('')}</tr>
+        </thead>
+        <tbody>
+          ${allRows}
+          <tr style="height:0"><td class="gcol-name" style="padding:0;border:none"></td>
+            <td colspan="${weeks.length}" style="padding:0;border:none;position:relative">
+              <div class="gantt-today-line" style="left:${todayOff}px"></div>
+            </td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="gantt-legend">
+      <div class="leg-item"><div class="leg-bar" style="background:#555;opacity:.5"></div>Planejado</div>
+      <div class="leg-item"><div class="leg-bar" style="background:#3b82f6"></div>Em andamento</div>
+      <div class="leg-item"><div class="leg-bar" style="background:var(--danger)"></div>Atrasado</div>
+      <div class="leg-item"><div class="leg-bar" style="background:#555;opacity:.7"></div>Concluído</div>
+      <div class="leg-item"><div style="width:2px;height:12px;background:var(--red);border-radius:2px"></div>Hoje</div>
+    </div>
+  </div>`;
+};
+
+// Populate gantt filter
+function populateGanttFilter(){
+  const sel=$('gantt-filter-cons');if(!sel)return;
+  const cur=sel.value;
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin');
+  sel.innerHTML=`<option value="">Todos os Consultores</option>`+cs.map(u=>`<option value="${u.uid}">${u.name}</option>`).join('');
+  if(cur)sel.value=cur;
+}
 
 document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 </script>
