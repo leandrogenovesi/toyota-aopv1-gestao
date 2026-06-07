@@ -176,6 +176,8 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 .kb-add{margin:8px;padding:8px;background:transparent;border:1px dashed var(--bd);border-radius:var(--r);color:var(--t3);font-size:12px;text-align:center;transition:var(--tr)}
 .kb-add:hover{border-color:var(--bdl);color:var(--t2);background:var(--bg4)}
 .kb-done-tog{margin:0 8px 8px;padding:5px 8px;background:transparent;border:none;color:var(--t3);font-size:10px;font-family:var(--fm);text-align:left;display:flex;align-items:center;gap:5px;cursor:pointer;transition:var(--tr)}
+.kb-last-cmt{font-size:11px;color:var(--t2);font-style:italic;margin-bottom:7px;line-height:1.4;padding:5px 8px;background:var(--bg3);border-radius:4px;border-left:2px solid var(--bdl)}
+.kb-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
 .kb-done-tog:hover{color:var(--t2)}
 .comment{padding:8px 12px;background:var(--bg1);border-radius:var(--r);margin-bottom:8px;font-size:12px;line-height:1.5}
 .comment-meta{font-size:10px;color:var(--t3);font-family:var(--fm);margin-bottom:4px}
@@ -952,8 +954,16 @@ window.renderKanban=()=>{
     let cards=kadais.filter(k=>k.consultantId===u.uid);
     if(fs)cards=cards.filter(k=>k.status===fs);if(fo==='overdue')cards=cards.filter(k=>isOv(k.dueDate)&&k.status!=='done');
     const active=cards.filter(k=>k.status!=='done'),done=cards.filter(k=>k.status==='done'),sd=showDone[u.uid]||false;
-    const cardH=k=>{const cat=CATCOL[k.category]||{bg:'rgba(100,100,100,.2)',c:'#aaa'};const ov=isOv(k.dueDate)&&k.status!=='done';
-      return `<div class="kb-card${k.status==='done'?' done':''}${ov?' overdue':''}" style="border-left-color:${ov?'var(--danger)':color}" onclick="openKModal('${k.id}')"><div class="kb-ct">${k.title}</div><div class="kb-meta"><span class="kb-tag" style="background:${cat.bg};color:${cat.c}">${k.category}</span>${k.dueDate?`<span class="kb-due${ov?' ov':''}">${ov?'⚠':'⏱'} ${k.dueDate}</span>`:''}</div></div>`;};
+    const cardH=k=>{const ov=isOv(k.dueDate)&&k.status!=='done';
+      const lastCmt=k.lastComment?`<div class="kb-last-cmt">"${k.lastComment.text.length>45?k.lastComment.text.substring(0,45)+'…':k.lastComment.text}"</div>`:'';
+      return `<div class="kb-card${k.status==='done'?' done':''}${ov?' overdue':''}" style="border-left-color:${ov?'var(--danger)':color}" onclick="openKModal('${k.id}')">
+        <div class="kb-ct">${k.title}</div>
+        ${lastCmt}
+        <div class="kb-meta">
+          <span class="kb-cat-dot" style="background:${(CATCOL[k.category]||{c:'#aaa'}).c}" title="${k.category}"></span>
+          ${k.dueDate?`<span class="kb-due${ov?' ov':''}">${ov?'⚠':'⏱'} ${k.dueDate}</span>`:''}
+        </div>
+      </div>`;};
     return `<div class="kb-col"><div class="kb-col-h"><div class="kb-dot" style="background:${color}"></div><div class="kb-cname">${u.name.split(' ')[0]}</div><div class="kb-cnt">${active.length}</div></div><div class="kb-cards">${!active.length&&!done.length?`<div class="empty" style="padding:20px"><div class="empty-icon" style="font-size:22px">✓</div></div>`:''}${active.map(cardH).join('')}${done.length?`<button class="kb-done-tog" onclick="toggleDone('${u.uid}')">${sd?'▼':'▶'} ${done.length} concluído(s)</button>${sd?done.map(cardH).join(''):''}`:''}</div>${admin||u.uid===CU.uid?`<button class="kb-add" onclick="openKModal(null,'${u.uid}')">+ Novo Kadai</button>`:''}</div>`;
   }).join('');
 };
@@ -969,7 +979,14 @@ window.openKModal=async(id=null,preC=null)=>{
 async function renderCmts(kid){
   try{const snap=await getDocs(collection(db,`kadais/${kid}/comments`));const cmts=snap.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));$('k-cmt-list').innerHTML=cmts.length===0?'<div style="font-size:12px;color:var(--t3);margin-bottom:8px">Sem comentários.</div>':cmts.map(c=>`<div class="comment"><div class="comment-meta">${c.author} · ${c.createdAt?new Date(c.createdAt.seconds*1000).toLocaleString('pt-BR'):'agora'}</div>${c.text}</div>`).join('');}catch(e){}
 }
-window.addCmt=async()=>{if(!editKId)return;const txt=$('k-cmt-in').value.trim();if(!txt)return;await addDoc(collection(db,`kadais/${editKId}/comments`),{author:UP.name,text:txt,uid:CU.uid,createdAt:serverTimestamp()});$('k-cmt-in').value='';renderCmts(editKId);};
+window.addCmt=async()=>{
+  if(!editKId)return;
+  const txt=$('k-cmt-in').value.trim();if(!txt)return;
+  await addDoc(collection(db,`kadais/${editKId}/comments`),{author:UP.name,text:txt,uid:CU.uid,createdAt:serverTimestamp()});
+  // Save lastComment to kadai doc for quick display in card
+  await updateDoc(doc(db,'kadais',editKId),{lastComment:{text:txt,author:UP.name,updatedAt:serverTimestamp()}});
+  $('k-cmt-in').value='';renderCmts(editKId);
+};
 window.saveK=async()=>{
   const title=v('k-title'),cid=v('k-cons');if(!title||!cid){showToast('Preencha título e consultor.','err');return;}
   const data={title,consultantId:cid,category:v('k-cat'),status:v('k-status'),dueDate:v('k-due')||null,note:v('k-note'),updatedAt:serverTimestamp()};
