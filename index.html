@@ -1088,10 +1088,10 @@ function mCell(ds,n,om,ts,cs){
   return `<div class="cmcell${om?' om':''}${ds===ts?' today':''}"><div class="cdn">${n}</div>${de.slice(0,3).map(e=>{const color=users[e.consultantId]?.color||'#666';return `<div class="cev${e.type==='vacation'?' vacation':''}" style="background:${color}1a;border-left-color:${color};color:${color}" onclick="openEvModal('${e.id}')">${e.type==='vacation'?'🏖 ':''}${e.title}</div>`;}).join('')}${de.length>3?`<div style="font-size:10px;color:var(--t3)">+${de.length-3}</div>`:''}</div>`;
 }
 window.toggleAtaSection=()=>{
-  const type=v('ev-type');
-  // Mostra ata para visit, meeting e qualquer tipo customizado não-férias
+  const sel=$('ev-type');
+  const type=sel?sel.value:'';
   const noAta=['vacation'];
-  $('ata-section').style.display=noAta.includes(type)?'':'none';
+  $('ata-section').style.display=(type&&!noAta.includes(type))?'':'none';
 };
 window.openEvModal=function(id=null){
   editEvId=id;const admin=isAdmin();
@@ -1138,8 +1138,14 @@ window.openEvModal=function(id=null){
     sv('ev-title','');sv('ev-start',today());sv('ev-end','');sv('ev-note','');
     if(!admin&&!isManager())sv('ev-cons',CU.uid);
   }
-  toggleAtaSection();
   openMo('mo-ev');
+  // Forçar após render do modal — select precisa estar visível para ler valor corretamente
+  setTimeout(()=>{
+    const sel=$('ev-type');
+    const type=sel?sel.value:'';
+    const noAta=['vacation'];
+    $('ata-section').style.display=(type&&!noAta.includes(type))?'':'none';
+  },30);
 };
 window.saveEv=async()=>{
   const cid=(isAdmin()||isManager())?v('ev-cons'):CU.uid,title=v('ev-title'),start=v('ev-start');
