@@ -352,6 +352,13 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 .log-detail-field{padding:10px 0;border-bottom:1px solid var(--bd);font-size:12.5px}
 .log-detail-field:last-child{border-bottom:none}
 .log-detail-lbl{font-size:10px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+/* LOG PAGINAÇÃO */
+.log-pagination{display:flex;align-items:center;gap:8px;padding:10px 18px;border-top:1px solid var(--bd);flex-wrap:wrap}
+.log-pg-btn{padding:5px 12px;background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r);color:var(--t2);font-size:11px;font-family:var(--fm);transition:var(--tr);cursor:pointer}
+.log-pg-btn:hover:not(:disabled){border-color:var(--bdl);color:var(--t1)}
+.log-pg-btn:disabled{opacity:.35;cursor:default}
+.log-pg-info{font-size:11px;font-family:var(--fm);color:var(--t3);flex:1;text-align:center}
+.log-pg-size{padding:4px 8px;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);color:var(--t1);font-size:11px;font-family:var(--fm)}
 /* MODAL FOTO GRANDE */
 #mo-photo-view .modal{background:rgba(0,0,0,.92);border:1px solid var(--bdl);max-width:90vw;text-align:center}
 #mo-photo-view img{max-width:100%;max-height:80vh;border-radius:var(--r);display:block;margin:0 auto}
@@ -398,6 +405,14 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
       <div class="fg"><label class="fl">Nome Completo</label><input class="fi" type="text" id="r-name" placeholder="Seu nome"></div>
       <div class="fg"><label class="fl">E-mail</label><input class="fi" type="email" id="r-email" placeholder="seu@email.com"></div>
       <div class="fg"><label class="fl">Senha</label><input class="fi" type="password" id="r-pass" placeholder="Mínimo 6 caracteres"></div>
+      <div class="fg"><label class="fl">Área</label>
+        <select class="fi si" id="r-area">
+          <option value="AOPV1">AOPV1</option>
+          <option value="AOPV2">AOPV2</option>
+          <option value="AOPV3">AOPV3</option>
+          <option value="AOPV4">AOPV4</option>
+        </select>
+      </div>
       <button class="btn-p" onclick="doRegister()">Solicitar Acesso</button>
       <div class="lmsg" id="rmsg"></div>
     </div>
@@ -418,7 +433,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
       <button class="nb" onclick="go('coord')" id="nav-coord" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Coordenação<span class="bdg" id="admin-bdg" style="display:none">0</span></button>
     </nav>
     <div class="tb-right">
-      <div class="uchip"><div class="uav" id="u-av">?</div><span id="u-name">—</span></div>
+      <div class="uchip"><div class="uav" id="u-av">?</div><span id="u-name">—</span><span id="u-area-badge" style="font-size:9px;font-family:var(--fm);background:var(--bg4);border-radius:99px;padding:2px 7px;color:var(--t3);display:none"></span></div>
       <button class="btn-out" onclick="doLogout()">Sair</button>
     </div>
   </div>
@@ -512,7 +527,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 
     <!-- COORDENAÇÃO -->
     <div class="panel" id="panel-coord">
-      <div class="ph"><div class="pt">Painel de <span>Coordenação</span></div></div>
+      <div class="ph"><div class="pt" id="coord-title">Painel de <span>Coordenação</span></div></div>
       <!-- filter bar -->
       <div class="coord-filter-bar" id="coord-filter-bar">
         <span style="font-size:11px;font-family:var(--fm);color:var(--t3);letter-spacing:1px">FILTRAR POR:</span>
@@ -540,9 +555,15 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
             <button class="btn-sec" onclick="exportLog()" style="font-size:11px;padding:5px 12px">⬇ Exportar CSV</button>
           </div>
           <div class="log-toolbar">
-            <select class="si" id="log-filter" onchange="renderLog()"><option value="">Todos os usuários</option></select>
+            <select class="si" id="log-filter" onchange="logPage=0;renderLog()"><option value="">Todos os usuários</option></select>
+            <select class="si" id="log-page-size" onchange="logPage=0;renderLog()">
+              <option value="10">10 por página</option>
+              <option value="50">50 por página</option>
+              <option value="100">100 por página</option>
+            </select>
           </div>
           <div id="log-body"></div>
+          <div id="log-pagination" class="log-pagination" style="display:none"></div>
         </div>
         <div class="card">
           <div class="card-h">⚙️ Controle de Acesso</div>
@@ -566,6 +587,17 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
           </div>
         </div>
         <div id="cat-list" style="padding:14px 18px;display:flex;flex-wrap:wrap;gap:8px"></div>
+      </div>
+      <!-- tipos de entrada do calendário -->
+      <div class="card" style="margin-top:16px">
+        <div class="card-h">📅 Tipos de Entrada do Calendário
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="fi" type="text" id="evtype-new-input" placeholder="Novo tipo..." style="width:180px;padding:6px 12px;font-size:12px">
+            <button class="btn-add" onclick="addEvType()" style="font-size:11px;padding:6px 14px">+ Adicionar</button>
+          </div>
+        </div>
+        <div style="padding:8px 18px;font-size:11px;color:var(--t3);border-bottom:1px solid var(--bd)">Os tipos marcados com 🔒 são padrão e não podem ser removidos.</div>
+        <div id="evtype-list" style="padding:14px 18px;display:flex;flex-wrap:wrap;gap:8px"></div>
       </div>
     </div>
 
@@ -594,7 +626,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
   <div class="modal" style="max-width:560px">
     <div class="mh"><div class="mt" id="mo-ev-t">Nova Entrada</div><button class="mx" onclick="closeMo('mo-ev')">×</button></div>
     <div class="mb">
-      <div class="fg"><label class="fl">Tipo</label><select class="fi si" id="ev-type" onchange="toggleAtaSection()"><option value="visit">Visita</option><option value="vacation">Férias</option><option value="meeting">Reunião</option><option value="other">Outro</option></select></div>
+      <div class="fg"><label class="fl">Tipo</label><select class="fi si" id="ev-type" onchange="toggleAtaSection()"></select></div>
       <div class="fg"><label class="fl">Título</label><input class="fi" type="text" id="ev-title" placeholder="Ex: Visita Concessionária Centro"></div>
       <div class="fg" id="ev-cg"><label class="fl">Consultor</label><select class="fi si" id="ev-cons"></select></div>
       <div class="fg"><label class="fl">Data Início</label><input class="fi" type="date" id="ev-start"></div>
@@ -712,6 +744,8 @@ const db = getFirestore(app);
 let CU=null, UP=null;
 let users={}, events=[], kadais=[], ganttTasks=[], notifs=[], metas={}, logs=[];
 let ataPhotos=[];
+let evTypes=[];
+let logPage=0;
 let calView='week', calDate=new Date(), calFilters={};
 let editEvId=null, editKId=null, editGId=null;
 let showDone={};
@@ -736,6 +770,12 @@ const today=()=>fmt(new Date());
 const isOv=due=>due&&due<today();
 const initials=n=>n.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();
 const isAdmin=()=>UP?.role==='coordinator'||UP?.role==='admin';
+const isManager=()=>UP?.role==='manager';
+const isAdminOrManager=()=>isAdmin()||isManager();
+// Retorna a área do usuário logado; manager vê tudo (null = sem filtro)
+const myArea=()=>isManager()?null:(UP?.area||'AOPV1');
+// Filtra array por área — se manager retorna tudo
+const byArea=(arr)=>isManager()?arr:arr.filter(x=>!x.area||x.area===myArea());
 
 window.showToast=(msg,type='inf')=>{
   const t=document.createElement('div');
@@ -767,7 +807,8 @@ window.doRegister=async()=>{
   try{
     loading(true);
     const cr=await createUserWithEmailAndPassword(auth,email,pass);
-    await setDoc(doc(db,'users',cr.user.uid),{name,email,role:'consultant',status:'pending',color:'#3b82f6',createdAt:serverTimestamp()});
+    const area=document.getElementById('r-area')?.value||'AOPV1';
+    await setDoc(doc(db,'users',cr.user.uid),{name,email,role:'consultant',area,status:'pending',color:'#3b82f6',createdAt:serverTimestamp()});
     loading(false);showMsg('rmsg','Solicitação enviada! Aguarde aprovação.','ok');
   }catch(e){loading(false);showMsg('rmsg',e.code==='auth/email-already-in-use'?'E-mail já cadastrado.':'Erro.','err');}
 };
@@ -789,24 +830,38 @@ async function initApp(){
   hide('screen-login');show('screen-app');
   $('u-av').textContent=initials(UP.name);$('u-av').style.background=UP.color||'#e50000';
   $('u-name').textContent=UP.name.split(' ')[0];
-  if(isAdmin()){$('nav-coord').style.display='';$('humor-wrap').style.display='none';}
+  // Badge de área na topbar
+  const badge=$('u-area-badge');
+  if(badge){
+    if(isManager()){badge.textContent='GERENTE';badge.style.display='';}
+    else if(UP.area){badge.textContent=UP.area;badge.style.display='';}
+  }
+  if(isAdmin()||isManager()){$('nav-coord').style.display='';$('humor-wrap').style.display='none';
+    // nav label para manager
+    const navCoord=$('nav-coord');if(navCoord&&isManager())navCoord.innerHTML=navCoord.innerHTML.replace('Coordenação','Gerência');}
   else $('humor-wrap').style.display='';
   subAll();renderCal();loading(false);setTimeout(generateAlerts,1500);
 }
 
 function subAll(){
   unsubFns.push(onSnapshot(collection(db,'users'),snap=>{
-    users={};snap.forEach(d=>users[d.id]={...d.data(),uid:d.id});
+    const all={};snap.forEach(d=>all[d.id]={...d.data(),uid:d.id});
+    // Manager vê todos; coordenador vê só sua área + a si mesmo; consultor idem
+    if(isManager()){users=all;}
+    else{users={};Object.values(all).forEach(u=>{if(!u.area||u.area===myArea()||u.uid===CU.uid)users[u.uid]=u;});}
     updateAdminBdg();populateSels();renderCalChips();renderKanban();renderAdmin();renderMetas();renderCompTable();buildCoordFilter();populateGanttFilter();
   }));
   unsubFns.push(onSnapshot(collection(db,'events'),snap=>{
-    events=snap.docs.map(d=>({...d.data(),id:d.id}));renderCal();renderDashWeek();generateAlerts();
+    const all=snap.docs.map(d=>({...d.data(),id:d.id}));
+    events=byArea(all);renderCal();renderDashWeek();generateAlerts();
   }));
   unsubFns.push(onSnapshot(collection(db,'kadais'),snap=>{
-    kadais=snap.docs.map(d=>({...d.data(),id:d.id}));renderKanban();renderKPIs();generateAlerts();renderCompTable();renderCharts();
+    const all=snap.docs.map(d=>({...d.data(),id:d.id}));
+    kadais=byArea(all);renderKanban();renderKPIs();generateAlerts();renderCompTable();renderCharts();
   }));
   unsubFns.push(onSnapshot(collection(db,'gantt'),snap=>{
-    ganttTasks=snap.docs.map(d=>({...d.data(),id:d.id}));renderGantt();generateAlerts();renderCompTable();
+    const all=snap.docs.map(d=>({...d.data(),id:d.id}));
+    ganttTasks=byArea(all);renderGantt();generateAlerts();renderCompTable();
   }));
   unsubFns.push(onSnapshot(collection(db,'notifications'),snap=>{
     notifs=snap.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
@@ -816,22 +871,27 @@ function subAll(){
     metas={};snap.forEach(d=>metas[d.id]=d.data());renderMetas();renderCompTable();renderCharts();
   }));
   subCategories();
-    unsubFns.push(onSnapshot(collection(db,'logs'),snap=>{
-    logs=snap.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,100);
+  subEvTypes();
+  unsubFns.push(onSnapshot(collection(db,'logs'),snap=>{
+    const all=snap.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    logs=isManager()?all:all.filter(l=>!l.area||l.area===myArea());
+    logs=logs.slice(0,200);
     renderLog();populateLogFilter();
   }));
 }
 
 async function addLog(action,detail){
-  try{await addDoc(collection(db,'logs'),{uid:CU.uid,name:UP.name,action,detail,createdAt:serverTimestamp()});}catch(e){}
+  try{await addDoc(collection(db,'logs'),{uid:CU.uid,name:UP.name,area:UP.area||'AOPV1',action,detail,createdAt:serverTimestamp()});}catch(e){}
 }
 
 // USERS
 function updateAdminBdg(){
+  // manager vê todos pendentes; coordenador só da sua área (já filtrado em users)
   const n=Object.values(users).filter(u=>u.status==='pending').length;
   [$('admin-bdg'),$('pend-lbl')].forEach(el=>{if(el){el.textContent=n;el.style.display=n>0?'':'none';}});
 }
 function populateSels(){
+  // users já filtrado por área no subAll; manager vê todos
   const cs=Object.values(users).filter(u=>u.status==='active');
   ['ev-cons','k-cons'].forEach(id=>{
     const sel=$(id);if(!sel)return;const cur=sel.value;
@@ -845,12 +905,18 @@ function populateSels(){
 }
 
 window.renderAdmin=()=>{
-  if(!isAdmin())return;
+  if(!isAdmin()&&!isManager())return;
   const pend=Object.values(users).filter(u=>u.status==='pending');
   const act=Object.values(users).filter(u=>u.status==='active'||u.status==='inactive');
+  const roleLabel=u=>{
+    if(u.role==='manager')return'<span class="badge" style="background:rgba(229,0,0,.14);color:var(--red)">Gerente</span>';
+    if(u.role==='coordinator'||u.role==='admin')return'<span class="badge b-coord">Coord</span>';
+    return u.status==='active'?'<span class="badge b-active">Ativo</span>':'<span class="badge b-inactive">Inativo</span>';
+  };
+  const areaTag=u=>u.area?`<span style="font-size:9px;font-family:var(--fm);background:var(--bg4);border-radius:99px;padding:2px 6px;color:var(--t3)">${u.area}</span>`:'';
   $('pend-list').innerHTML=pend.length===0?`<div class="empty" style="padding:20px"><div class="empty-txt">Nenhuma solicitação</div></div>`
-    :pend.map(u=>`<div class="user-row"><div class="ur-av" style="background:${u.color||'#666'}">${initials(u.name)}</div><div class="ur-info"><div class="ur-name">${u.name}</div><div class="ur-email">${u.email}</div></div><div class="ur-actions"><button class="btn-sm btn-ok" onclick="approveU('${u.uid}')">Aprovar</button><button class="btn-sm btn-rej" onclick="rejectU('${u.uid}')">Rejeitar</button></div></div>`).join('');
-  $('users-list').innerHTML=act.map(u=>`<div class="user-row"><div class="ur-av" style="background:${u.color||'#666'}">${initials(u.name)}</div><div class="ur-info"><div class="ur-name">${u.name}</div><div class="ur-email">${u.email}</div></div><div class="ur-actions"><div class="color-dot" style="background:${u.color||'#3b82f6'}" onclick="openColorModal('${u.uid}')" title="Editar cor"></div><span class="badge ${u.role==='coordinator'||u.role==='admin'?'b-coord':u.status==='active'?'b-active':'b-inactive'}">${u.role==='coordinator'||u.role==='admin'?'Coord':u.status==='active'?'Ativo':'Inativo'}</span>${u.uid!==CU.uid?`<button class="btn-sm btn-dis" onclick="toggleU('${u.uid}','${u.status}')">${u.status==='active'?'Desativar':'Ativar'}</button>`:''}</div></div>`).join('');
+    :pend.map(u=>`<div class="user-row"><div class="ur-av" style="background:${u.color||'#666'}">${initials(u.name)}</div><div class="ur-info"><div class="ur-name">${u.name} ${areaTag(u)}</div><div class="ur-email">${u.email}</div></div><div class="ur-actions"><button class="btn-sm btn-ok" onclick="approveU('${u.uid}')">Aprovar</button><button class="btn-sm btn-rej" onclick="rejectU('${u.uid}')">Rejeitar</button></div></div>`).join('');
+  $('users-list').innerHTML=act.map(u=>`<div class="user-row"><div class="ur-av" style="background:${u.color||'#666'}">${initials(u.name)}</div><div class="ur-info"><div class="ur-name">${u.name} ${areaTag(u)}</div><div class="ur-email">${u.email}</div></div><div class="ur-actions"><div class="color-dot" style="background:${u.color||'#3b82f6'}" onclick="openColorModal('${u.uid}')" title="Editar cor"></div>${roleLabel(u)}${u.uid!==CU.uid?`<button class="btn-sm btn-dis" onclick="toggleU('${u.uid}','${u.status}')">${u.status==='active'?'Desativar':'Ativar'}</button>`:''}</div></div>`).join('');
 };
 window.approveU=async uid=>{await updateDoc(doc(db,'users',uid),{status:'active'});await pushNotif(uid,'Seu acesso foi aprovado!','✅');showToast('Aprovado!','ok');};
 window.rejectU=async uid=>{await updateDoc(doc(db,'users',uid),{status:'inactive'});showToast('Rejeitado.','inf');};
@@ -861,7 +927,7 @@ async function pushNotif(uid,text,icon='🔔'){
   await addDoc(collection(db,'notifications'),{uid,text,icon,read:false,createdAt:serverTimestamp()});
 }
 function renderNotifs(){
-  const mine=notifs.filter(n=>n.uid===CU.uid||isAdmin());
+  const mine=notifs.filter(n=>n.uid===CU.uid||isAdmin()||isManager());
   const unread=mine.filter(n=>!n.read);
   const read=mine.filter(n=>n.read);
   let html='';
@@ -888,11 +954,11 @@ function renderNotifs(){
   $('notif-card').innerHTML=html;
 }
 function updateNotifBdg(){
-  const n=notifs.filter(x=>(x.uid===CU.uid||isAdmin())&&!x.read).length;
+  const n=notifs.filter(x=>(x.uid===CU.uid||isAdmin()||isManager())&&!x.read).length;
   $('notif-bdg').style.display=n>0?'':'none';$('notif-bdg').textContent=n;
 }
 window.readNotif=async id=>{await updateDoc(doc(db,'notifications',id),{read:true,readAt:serverTimestamp()});};
-window.markAllRead=async()=>{for(const n of notifs.filter(x=>(x.uid===CU.uid||isAdmin())&&!x.read))await updateDoc(doc(db,'notifications',n.id),{read:true,readAt:serverTimestamp()});};
+window.markAllRead=async()=>{for(const n of notifs.filter(x=>(x.uid===CU.uid||isAdmin()||isManager())&&!x.read))await updateDoc(doc(db,'notifications',n.id),{read:true,readAt:serverTimestamp()});};
 window.toggleReadNotifs=()=>{showReadNotifs=!showReadNotifs;renderNotifs();};
 
 // ALERTS
@@ -924,7 +990,9 @@ function renderKPIs(){
     {lbl:'De Férias',val:vac,sub:'neste momento',cls:'cyan'},
     {lbl:'Entregas Atrasadas',val:del,sub:'no cronograma',cls:'red'},
   ];
-  if(!isAdmin())kpis.splice(0,1);
+  if(!isAdmin()&&!isManager())kpis.splice(0,1);
+  // Manager: adicionar KPI de áreas ativas
+  if(isManager()){const areas=[...new Set(Object.values(users).map(u=>u.area).filter(Boolean))];kpis.unshift({lbl:'Áreas Ativas',val:areas.length,sub:areas.join(' · ')||'—',cls:'red'});}
   $('kpi-grid').innerHTML=kpis.map(k=>`<div class="kpi ${k.cls}"><div class="kpi-lbl">${k.lbl}</div><div class="kpi-val">${k.val}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
 }
 
@@ -999,7 +1067,9 @@ function mCell(ds,n,om,ts,cs){
 }
 window.toggleAtaSection=()=>{
   const type=v('ev-type');
-  $('ata-section').style.display=(type==='visit'||type==='meeting')?'':'none';
+  // Mostra ata para visit, meeting e qualquer tipo customizado não-férias
+  const noAta=['vacation'];
+  $('ata-section').style.display=noAta.includes(type)?'':'none';
 };
 window.openEvModal=function(id=null){
   editEvId=id;const admin=isAdmin();
@@ -1011,7 +1081,7 @@ window.openEvModal=function(id=null){
     canDel=admin||(e&&e.consultantId===CU.uid);
   }
   $('ev-del').style.display=canDel?'':'none';
-  $('ev-cg').style.display=admin?'':'none';
+  $('ev-cg').style.display=(admin||isManager())?'':'none';
   // Limpar ata
   sv('ata-participantes','');sv('ata-assunto','');sv('ata-proximos','');
   ataPhotos=[];renderAtaPhotos();
@@ -1037,7 +1107,7 @@ window.openEvModal=function(id=null){
   openMo('mo-ev');
 };
 window.saveEv=async()=>{
-  const cid=isAdmin()?v('ev-cons'):CU.uid,title=v('ev-title'),start=v('ev-start');
+  const cid=(isAdmin()||isManager())?v('ev-cons'):CU.uid,title=v('ev-title'),start=v('ev-start');
   if(!title||!start){showToast('Preencha título e data.','err');return;}
   const type=v('ev-type');
   const ata=(type==='visit'||type==='meeting')?{
@@ -1046,7 +1116,8 @@ window.saveEv=async()=>{
     proximos:v('ata-proximos'),
     photos:ataPhotos
   }:null;
-  const data={type,title,consultantId:cid,startDate:start,endDate:v('ev-end')||start,note:v('ev-note'),updatedAt:serverTimestamp()};
+  const area=isManager()?(users[cid]?.area||'AOPV1'):(myArea()||'AOPV1');
+  const data={type,title,consultantId:cid,area,startDate:start,endDate:v('ev-end')||start,note:v('ev-note'),updatedAt:serverTimestamp()};
   if(ata)data.ata=ata;
   try{
     if(editEvId)await updateDoc(doc(db,'events',editEvId),data);
@@ -1065,7 +1136,7 @@ window.delEv=async()=>{
 window.renderKanban=()=>{
   const admin=isAdmin(),fc=v('kf-c'),fs=v('kf-s'),fo=v('kf-o');
   let cs=Object.values(users).filter(u=>u.status==='active');
-  if(!admin)cs=cs.filter(u=>u.uid===CU.uid);if(fc)cs=cs.filter(u=>u.uid===fc);
+  if(!admin&&!isManager())cs=cs.filter(u=>u.uid===CU.uid);if(fc)cs=cs.filter(u=>u.uid===fc);
   const board=$('kb-board');if(!board)return;
   if(!cs.length){board.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-txt">Nenhum consultor</div></div>`;return;}
   board.innerHTML=cs.map(u=>{
@@ -1099,14 +1170,14 @@ window.renderKanban=()=>{
           ${k.dueDate?`<span class="kb-due${ov?' ov':''}">${ov?'⚠':'⏱'} ${k.dueDate}</span>`:''}
         </div>
       </div>`;};
-    return `<div class="kb-col"><div class="kb-col-h"><div class="kb-dot" style="background:${color}"></div><div class="kb-cname">${u.name.split(' ')[0]}</div><div class="kb-cnt">${active.length}</div></div><div class="kb-cards">${!active.length&&!done.length?`<div class="empty" style="padding:20px"><div class="empty-icon" style="font-size:22px">✓</div></div>`:''}${active.map(cardH).join('')}${done.length?`<button class="kb-done-tog" onclick="toggleDone('${u.uid}')">${sd?'▼':'▶'} ${done.length} concluído(s)</button>${sd?done.map(cardH).join(''):''}`:''}</div>${admin||u.uid===CU.uid?`<button class="kb-add" onclick="openKModal(null,'${u.uid}')">+ Novo Kadai</button>`:''}</div>`;
+    return `<div class="kb-col"><div class="kb-col-h"><div class="kb-dot" style="background:${color}"></div><div class="kb-cname">${u.name.split(' ')[0]}</div><div class="kb-cnt">${active.length}</div></div><div class="kb-cards">${!active.length&&!done.length?`<div class="empty" style="padding:20px"><div class="empty-icon" style="font-size:22px">✓</div></div>`:''}${active.map(cardH).join('')}${done.length?`<button class="kb-done-tog" onclick="toggleDone('${u.uid}')">${sd?'▼':'▶'} ${done.length} concluído(s)</button>${sd?done.map(cardH).join(''):''}`:''}</div>${(admin||isManager()||u.uid===CU.uid)?`<button class="kb-add" onclick="openKModal(null,'${u.uid}')">+ Novo Kadai</button>`:''}</div>`;
   }).join('');
 };
 window.toggleDone=uid=>{showDone[uid]=!showDone[uid];renderKanban();};
 window.openKModal=async(id=null,preC=null)=>{
   editKId=id;const admin=isAdmin();
   $('mo-k-t').textContent=id?'Editar Kadai':'Novo Kadai';
-  $('k-del').style.display=id?'':'none';$('k-cmt-sec').style.display=id?'':'none';
+  if(id){const _k=kadais.find(x=>x.id===id);$('k-del').style.display=(isAdmin()||isManager()||(_k&&_k.consultantId===CU.uid))?'':'none';}else{$('k-del').style.display='none';}$('k-cmt-sec').style.display=id?'':'none';
   if(id){const k=kadais.find(x=>x.id===id);if(k){sv('k-title',k.title);sv('k-cons',k.consultantId);sv('k-cat',k.category);sv('k-status',k.status);sv('k-due',k.dueDate||'');sv('k-note',k.note||'');}renderCmts(id);}
   else{sv('k-title','');sv('k-cons',preC||CU.uid);sv('k-cat','processo');sv('k-status','backlog');sv('k-due','');sv('k-note','');}
   openMo('mo-k');
@@ -1123,8 +1194,9 @@ window.addCmt=async()=>{
   $('k-cmt-in').value='';renderCmts(editKId);
 };
 window.saveK=async()=>{
-  const title=v('k-title'),cid=v('k-cons');if(!title||!cid){showToast('Preencha título e consultor.','err');return;}
-  const data={title,consultantId:cid,category:v('k-cat'),status:v('k-status'),dueDate:v('k-due')||null,note:v('k-note'),updatedAt:serverTimestamp()};
+  const title=v('k-title'),cid=(isAdmin()||isManager())?v('k-cons'):CU.uid;if(!title||!cid){showToast('Preencha título e consultor.','err');return;}
+  const kArea=isManager()?(users[cid]?.area||'AOPV1'):(myArea()||'AOPV1');
+  const data={title,consultantId:cid,area:kArea,category:v('k-cat'),status:v('k-status'),dueDate:v('k-due')||null,note:v('k-note'),updatedAt:serverTimestamp()};
   try{if(editKId)await updateDoc(doc(db,'kadais',editKId),data);else{await addDoc(collection(db,'kadais'),{...data,createdAt:serverTimestamp()});await addLog('Kadai',`${UP.name} criou "${title}"`);}
   if(data.dueDate){const d=new Date(data.dueDate+'T00:00'),diff=(d-new Date())/(86400000);if(diff<=3&&diff>=0&&!editKId)await pushNotif(cid,`Kadai "${title}" vence em ${Math.ceil(diff)} dia(s).`,'⏰');}
   closeMo('mo-k');showToast(editKId?'Atualizado!':'Criado!','ok');}catch(e){showToast('Erro.','err');}
@@ -1135,7 +1207,7 @@ window.delK=async()=>{if(!editKId||!confirm('Excluir?'))return;await deleteDoc(d
 window.openGModal=function(id=null){
   editGId=id;const admin=isAdmin();
   $('mo-g-t').textContent=id?'Editar Atividade':'Nova Atividade';
-  $('g-del').style.display=id&&admin?'':'none';
+  $('g-del').style.display=id&&(admin||isManager())?'':'none';
   const ps=$('g-par');ps.innerHTML=`<option value="">— principal —</option>`+ganttTasks.filter(t=>!t.parentId&&t.id!==id).map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
   if(id){const t=ganttTasks.find(x=>x.id===id);if(t){sv('g-name',t.name);sv('g-cons',t.consultantId||'');sv('g-par',t.parentId||'');sv('g-ps',t.planStart||'');sv('g-pe',t.planEnd||'');sv('g-prog',t.progress||0);}}
   else{sv('g-name','');sv('g-cons','');sv('g-par','');sv('g-ps','');sv('g-pe','');sv('g-prog',0);}
@@ -1150,14 +1222,15 @@ window.saveG=async()=>{
   let _status='on_track';
   if(_prog>=100){_status='done';}
   else if(_pe&&_pe<today()){_status='delayed';}
-  const data={name,consultantId:_cid,parentId:v('g-par')||null,planStart:_ps||null,planEnd:_pe||null,progress:_prog,status:_status,color:_color,updatedAt:serverTimestamp()};
+  const gArea=isManager()?(_cid?users[_cid]?.area||'AOPV1':'AOPV1'):(myArea()||'AOPV1');
+  const data={name,consultantId:_cid,area:gArea,parentId:v('g-par')||null,planStart:_ps||null,planEnd:_pe||null,progress:_prog,status:_status,color:_color,updatedAt:serverTimestamp()};
   try{if(editGId)await updateDoc(doc(db,'gantt',editGId),data);else{await addDoc(collection(db,'gantt'),{...data,createdAt:serverTimestamp()});await addLog('Cronograma',`${UP.name} criou "${name}"`);}closeMo('mo-g');showToast(editGId?'Atualizado!':'Criado!','ok');}catch(e){showToast('Erro.','err');}
 };
 window.delG=async()=>{if(!editGId||!confirm('Excluir?'))return;for(const ch of ganttTasks.filter(t=>t.parentId===editGId))await deleteDoc(doc(db,'gantt',ch.id));await deleteDoc(doc(db,'gantt',editGId));closeMo('mo-g');showToast('Excluído.','inf');};
 
 // METAS
 function renderMetas(){
-  if(!isAdmin())return;
+  if(!isAdmin()&&!isManager())return;
   const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin');
   const mo=new Date().getMonth(),yr=new Date().getFullYear();
   const moStr=`${yr}-${String(mo+1).padStart(2,'0')}`;
@@ -1173,7 +1246,7 @@ window.saveMeta=async()=>{const uid=v('meta-cons'),goal=parseInt(v('meta-val'))|
 
 // COORD FILTER
 function buildCoordFilter(){
-  if(!isAdmin())return;
+  if(!isAdmin()&&!isManager())return;
   const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin');
   const bar=$('coord-filter-bar');if(!bar)return;
   const existing=bar.querySelectorAll('.coord-chip:not(.all)');existing.forEach(e=>e.remove());
@@ -1195,7 +1268,7 @@ window.coordFilter=(uid,btn)=>{
 
 // COMP TABLE
 async function renderCompTable(){
-  if(!isAdmin())return;
+  if(!isAdmin()&&!isManager())return;
   const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&(!coordFilterUid||u.uid===coordFilterUid));
   const mo=new Date().getMonth(),yr=new Date().getFullYear();
   const moStr=`${yr}-${String(mo+1).padStart(2,'0')}`;
@@ -1213,7 +1286,8 @@ async function renderCompTable(){
     const semCls=score>=70?'sem-g':score>=40?'sem-a':'sem-r';
     const semE=score>=70?'🟢':score>=40?'🟡':'🔴';
     const hu=humorMap[u.uid];
-    return `<tr><td><div style="display:flex;align-items:center;gap:8px"><div class="cdot" style="background:${u.color||'#666'}"></div>${u.name.split(' ')[0]}</div></td>
+    const aTag=isManager()&&u.area?`<span style="font-size:9px;font-family:var(--fm);background:var(--bg4);border-radius:99px;padding:1px 5px;color:var(--t3);margin-left:4px">${u.area}</span>`:'';
+    return `<tr><td><div style="display:flex;align-items:center;gap:8px"><div class="cdot" style="background:${u.color||'#666'}"></div>${u.name.split(' ')[0]}${aTag}</div></td>
       <td><div class="sem ${semCls}" title="Score: ${score}">${semE}</div></td>
       <td><div style="display:flex;align-items:center;gap:8px">${visits}<div class="prog-bar" style="width:60px"><div class="prog-fill" style="width:${pct}%;background:${pct>=80?'var(--green)':pct>=50?'var(--amber)':'var(--danger)'}"></div></div></div></td>
       <td style="font-size:11px;color:var(--t2)">${meta}</td>
@@ -1227,7 +1301,7 @@ async function renderCompTable(){
 
 // CHARTS
 function renderCharts(){
-  if(!isAdmin())return;
+  if(!isAdmin()&&!isManager())return;
   const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&(!coordFilterUid||u.uid===coordFilterUid));
   const now=new Date();
   const mo=now.getMonth(),yr=now.getFullYear();
@@ -1276,28 +1350,13 @@ function populateLogFilter(){
   sel.innerHTML=`<option value="">Todos os usuários</option>`+names.map(n=>`<option value="${n}">${n}</option>`).join('');
   if(cur)sel.value=cur;
 }
-window.renderLog=()=>{
-  const filterU=v('log-filter');
-  const filtered=coordFilterUid
-    ? logs.filter(l=>l.uid===coordFilterUid&&(!filterU||l.name===filterU))
-    : logs.filter(l=>!filterU||l.name===filterU);
-  if(!filtered.length){$('log-body').innerHTML=`<div class="empty" style="padding:24px"><div class="empty-txt">Sem registros</div></div>`;return;}
-  $('log-body').innerHTML=filtered.slice(0,80).map(l=>{
-    const ts=l.createdAt?new Date(l.createdAt.seconds*1000).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
-    const detail=(l.detail||'').length>55?(l.detail||'').substring(0,55)+'…':(l.detail||'');
-    return `<div class="log-row" onclick="openLogDetail(${JSON.stringify(l).replace(/"/g,'&quot;')})">
-      <div class="log-row-dot"></div>
-      <div class="log-row-who">${l.name?.split(' ')[0]||'?'}</div>
-      <div class="log-row-action">${l.action} — ${detail}</div>
-      <div class="log-row-time">${ts}</div>
-      <div class="log-row-arrow">›</div>
-    </div>`;
-  }).join('');
-};
+
 window.openLogDetail=(l)=>{
   const ts=l.createdAt?new Date(l.createdAt.seconds*1000).toLocaleString('pt-BR'):'—';
+  const areaRow=l.area?`<div class="log-detail-field"><div class="log-detail-lbl">Área</div>${l.area}</div>`:'';
   $('log-detail-body').innerHTML=`
     <div class="log-detail-field"><div class="log-detail-lbl">Usuário</div>${l.name||'—'}</div>
+    ${areaRow}
     <div class="log-detail-field"><div class="log-detail-lbl">Ação</div>${l.action||'—'}</div>
     <div class="log-detail-field"><div class="log-detail-lbl">Detalhe</div><span style="color:var(--t2)">${l.detail||'—'}</span></div>
     <div class="log-detail-field"><div class="log-detail-lbl">Data/Hora</div><span style="font-family:var(--fm);font-size:12px">${ts}</span></div>
@@ -1529,7 +1588,7 @@ window.renderGantt=()=>{
   }
 
   // ── Group by consultant ──
-  const consultants=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin');
+  const consultants=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager');
   const grouped=[];
   // Get all task IDs that passed the filter
   const ftIds=new Set(ft.map(t=>t.id));
@@ -1676,8 +1735,8 @@ window.exportGanttPNG=async()=>{
 function populateGanttFilter(){
   const sel=$('gantt-filter-cons');if(!sel)return;
   const cur=sel.value;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin');
-  sel.innerHTML=`<option value="">Todos os Consultores</option>`+cs.map(u=>`<option value="${u.uid}">${u.name}</option>`).join('');
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager');
+  sel.innerHTML=`<option value="">Todos os Consultores</option>`+cs.map(u=>`<option value="${u.uid}">${isManager()&&u.area?u.name+' ('+u.area+')':u.name}</option>`).join('');
   if(cur)sel.value=cur;
 }
 
@@ -1690,7 +1749,11 @@ window.go=tab=>{
   if(tab==='dash'){renderKPIs();renderDashWeek();generateAlerts();}
   if(tab==='kanban')renderKanban();
   if(tab==='gantt')renderGantt();
-  if(tab==='coord'){renderAdmin();renderMetas();renderCompTable();renderCharts();renderLog();}
+  if(tab==='coord'){
+    const ct=$('coord-title');
+    if(ct)ct.innerHTML=isManager()?'Painel do <span>Gerente</span>':'Painel de <span>Coordenação</span>';
+    renderAdmin();renderMetas();renderCompTable();renderCharts();renderLog();
+  }
   if(tab==='notif')renderNotifs();
 };
 
@@ -1705,7 +1768,7 @@ function renderAtaPhotos(){
       <button class="ata-photo-del" onclick="removeAtaPhoto(${i})" title="Remover">×</button>
     </div>`).join('');
   if(ataPhotos.length<MAX){
-    html+=`<div class="ata-photo-add" onclick="$('ata-photo-input').click()"><span>+</span><span>Foto</span></div>`;
+    html+=`<div class="ata-photo-add" onclick="triggerPhotoInput()"><span>+</span><span>Foto</span></div>`;
   }
   wrap.innerHTML=html;
 }
@@ -1725,6 +1788,7 @@ window.handlePhotoSelect=async(evt)=>{
   renderAtaPhotos();
   if(files.length>remaining)showToast(`Apenas ${remaining} foto(s) adicionada(s) — limite de 5.`,'inf');
 };
+window.triggerPhotoInput=()=>document.getElementById('ata-photo-input').click();
 window.removeAtaPhoto=(idx)=>{ataPhotos.splice(idx,1);renderAtaPhotos();};
 window.viewPhoto=(src)=>{$('photo-view-img').src=src;openMo('mo-photo-view');};
 
@@ -1774,6 +1838,103 @@ window.addCategory=async()=>{
 window.deleteCategory=async(id)=>{
   if(!confirm('Remover esta categoria?'))return;
   try{await deleteDoc(doc(db,'categories',id));showToast('Removida.','inf');}catch(e){showToast('Erro.','err');}
+};
+
+// ── TIPOS DE ENTRADA DO CALENDÁRIO ──
+const DEFAULT_EV_TYPES=[
+  {id:'visit',label:'Visita',locked:true},
+  {id:'vacation',label:'Férias',locked:true},
+  {id:'meeting',label:'Reunião',locked:true},
+  {id:'other',label:'Outro',locked:true}
+];
+
+function subEvTypes(){
+  unsubFns.push(onSnapshot(collection(db,'evTypes'),snap=>{
+    if(snap.empty){
+      evTypes=DEFAULT_EV_TYPES.map(t=>({...t}));
+    } else {
+      // Merge defaults (locked) com os salvos no Firestore
+      const saved=snap.docs.map(d=>({id:d.id,...d.data()}));
+      const savedIds=new Set(saved.map(t=>t.id));
+      evTypes=[
+        ...DEFAULT_EV_TYPES.filter(t=>!savedIds.has(t.id)), // defaults não salvos
+        ...saved
+      ];
+    }
+    renderEvTypeList();
+    populateEvTypeSelect();
+  }));
+}
+
+function populateEvTypeSelect(){
+  const sel=$('ev-type');if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML=evTypes.map(t=>`<option value="${t.id}">${t.label}</option>`).join('');
+  if(cur&&evTypes.find(t=>t.id===cur))sel.value=cur;
+}
+
+function renderEvTypeList(){
+  const el=$('evtype-list');if(!el)return;
+  el.innerHTML=evTypes.map(t=>`
+    <div class="cat-tag">
+      ${t.locked?'🔒 ':''}${t.label}
+      ${!t.locked?`<button onclick="deleteEvType('${t.id}')" title="Remover">×</button>`:''}
+    </div>`).join('');
+}
+
+window.addEvType=async()=>{
+  const inp=$('evtype-new-input');
+  const label=inp.value.trim();
+  if(!label){showToast('Digite um nome.','err');return;}
+  const id='evt_'+label.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,20)+'_'+Date.now();
+  try{
+    await setDoc(doc(db,'evTypes',id),{label,locked:false,createdAt:serverTimestamp()});
+    inp.value='';showToast('Tipo adicionado!','ok');
+  }catch(e){showToast('Erro.','err');}
+};
+
+window.deleteEvType=async(id)=>{
+  if(!confirm('Remover este tipo?'))return;
+  try{await deleteDoc(doc(db,'evTypes',id));showToast('Removido.','inf');}catch(e){showToast('Erro.','err');}
+};
+
+// ── LOG PAGINADO ──
+window.renderLog=()=>{
+  const filterU=v('log-filter');
+  const pageSize=parseInt($('log-page-size')?.value||'10');
+  const filtered=coordFilterUid
+    ? logs.filter(l=>l.uid===coordFilterUid&&(!filterU||l.name===filterU))
+    : logs.filter(l=>!filterU||l.name===filterU);
+  const total=filtered.length;
+  const totalPages=Math.max(1,Math.ceil(total/pageSize));
+  if(logPage>=totalPages)logPage=totalPages-1;
+  const slice=filtered.slice(logPage*pageSize,(logPage+1)*pageSize);
+  const lb=$('log-body'),lp=$('log-pagination');
+  if(!lb)return;
+  if(!total){
+    lb.innerHTML=`<div class="empty" style="padding:24px"><div class="empty-txt">Sem registros</div></div>`;
+    if(lp)lp.style.display='none';
+    return;
+  }
+  lb.innerHTML=slice.map(l=>{
+    const ts=l.createdAt?new Date(l.createdAt.seconds*1000).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+    const detail=(l.detail||'').length>55?(l.detail||'').substring(0,55)+'…':(l.detail||'');
+    const esc=JSON.stringify(l).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    return `<div class="log-row" onclick='openLogDetail(${JSON.stringify(l).replace(/'/g,"&#39;")})'>
+      <div class="log-row-dot"></div>
+      <div class="log-row-who">${l.name?.split(' ')[0]||'?'}</div>
+      <div class="log-row-action">${l.action} — ${detail}</div>
+      <div class="log-row-time">${ts}</div>
+      <div class="log-row-arrow">›</div>
+    </div>`;
+  }).join('');
+  if(lp){
+    lp.style.display='flex';
+    lp.innerHTML=`
+      <button class="log-pg-btn" onclick="logPage--;renderLog()" ${logPage===0?'disabled':''}>&#8592; Anterior</button>
+      <span class="log-pg-info">Página ${logPage+1} de ${totalPages} · ${total} registro(s)</span>
+      <button class="log-pg-btn" onclick="logPage++;renderLog()" ${logPage>=totalPages-1?'disabled':''}>Próximo &#8594;</button>`;
+  }
 };
 
 // ── USER COLOR ──
