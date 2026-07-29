@@ -1018,14 +1018,22 @@ window.toggleReadNotifs=()=>{showReadNotifs=!showReadNotifs;renderNotifs();};
 // ALERTS
 function generateAlerts(){
   const aF=mgArea('mg-area-dash');
-  const aF2=x=>!aF||!x.area||x.area===aF;
+  // aF2: filtra qualquer doc por área; legados sem area só passam se não há filtro ativo
+  const aF2=x=>!aF||(x.area&&x.area===aF);
   const alerts=[];
   kadais.filter(k=>isOv(k.dueDate)&&k.status!=='done'&&aF2(k)).forEach(k=>{
     const u=users[k.consultantId];if(u)alerts.push({color:'var(--danger)',text:`<b>${u.name.split(' ')[0]}</b>: Kadai atrasado — "${k.title}"`,time:'Kadai'});
   });
-  ganttTasks.filter(g=>g.status==='delayed').forEach(g=>alerts.push({color:'var(--danger)',text:`Cronograma atrasado: "<b>${g.name}</b>"`,time:'Cronograma'}));
+  // Gantt: aplicar filtro de área
+  ganttTasks.filter(g=>g.status==='delayed'&&aF2(g)).forEach(g=>alerts.push({color:'var(--danger)',text:`Cronograma atrasado: "<b>${g.name}</b>"`,time:'Cronograma'}));
   const ts=today();
-  const onVac=Object.values(users).filter(u=>u.status==='active'&&events.some(e=>e.consultantId===u.uid&&e.type==='vacation'&&ts>=e.startDate&&ts<=(e.endDate||e.startDate)));
+  // Férias: filtrar consultores E eventos pela área selecionada
+  const onVac=Object.values(users).filter(u=>
+    u.status==='active'&&
+    u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&
+    (!aF||!u.area||u.area===aF)&&
+    events.some(e=>e.consultantId===u.uid&&e.type==='vacation'&&ts>=e.startDate&&ts<=(e.endDate||e.startDate)&&aF2(e))
+  );
   if(onVac.length>=2)alerts.push({color:'var(--amber)',text:`<b>${onVac.length} consultores</b> de férias: ${onVac.map(u=>u.name.split(' ')[0]).join(', ')}`,time:'Férias'});
   if(alerts.length===0)alerts.push({color:'var(--green)',text:'✅ Tudo em ordem!',time:''});
   $('alerts-list').innerHTML=alerts.map(a=>`<div class="alert-item"><div class="alert-dot" style="background:${a.color}"></div><div style="flex:1;font-size:12.5px">${a.text}</div><div class="alert-time">${a.time}</div></div>`).join('');
@@ -1033,7 +1041,7 @@ function generateAlerts(){
 
 function renderKPIs(){
   const aF=mgArea('mg-area-dash');
-  const aFilter=x=>!aF||!x.area||x.area===aF;
+  const aFilter=x=>!aF||(x.area&&x.area===aF);
   const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&(!aF||!u.area||u.area===aF));
   const open=kadais.filter(k=>k.status!=='done'&&aFilter(k)).length;
   const ov=kadais.filter(k=>isOv(k.dueDate)&&k.status!=='done'&&aFilter(k)).length;
@@ -1060,7 +1068,7 @@ function renderDashWeek(){
   let html='';
   days.forEach(d=>{
     const ds=fmt(d);
-    const de=events.filter(e=>ds>=e.startDate&&ds<=(e.endDate||e.startDate)&&(isAdmin()||isManager()?true:e.consultantId===CU.uid)&&(!aF||!e.area||e.area===aF));
+    const de=events.filter(e=>ds>=e.startDate&&ds<=(e.endDate||e.startDate)&&(isAdmin()||isManager()?true:e.consultantId===CU.uid)&&(!aF||(e.area&&e.area===aF)));
     if(de.length>0)html+=`<div class="alert-item"><div class="alert-dot" style="background:var(--blue)"></div><div style="flex:1;font-size:12.5px"><b>${DAYS_S[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</b> — ${de.map(e=>{const u=users[e.consultantId];return e.title+((isAdmin()||isManager())&&u?' ('+u.name.split(' ')[0]+(isManager()&&u.area?' · '+u.area:'')+ ')':'');}).join(', ')}</div></div>`;
   });
   $('week-prev').innerHTML=html||`<div class="empty" style="padding:32px"><div class="empty-icon">📅</div><div class="empty-txt">Sem eventos esta semana</div></div>`;
