@@ -443,6 +443,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
     <div class="panel active" id="panel-dash">
       <div class="ph">
         <div class="pt">Visão <span>Geral</span></div>
+        <select class="si mg-area-sel" id="mg-area-dash" onchange="renderKPIs();renderDashWeek();generateAlerts()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
         <div id="humor-wrap" style="display:none">
           <div style="font-size:10px;color:var(--t3);font-family:var(--fm);margin-bottom:6px;letter-spacing:1px">ENERGIA HOJE</div>
           <div class="humor-row">
@@ -470,6 +471,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
         <button class="cal-nav" onclick="calNav(1)">&#8594;</button>
         <button class="cal-nav" onclick="calToday()" style="font-size:10px;font-family:var(--fm);width:auto;padding:0 10px">hoje</button>
         <div class="vtog"><button onclick="setView('week')" id="vw" class="active">Semana</button><button onclick="setView('month')" id="vm">Mês</button></div>
+        <select class="si mg-area-sel" id="mg-area-cal" onchange="renderCal();renderDashWeek()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
         <div class="fchips" id="cal-chips"></div>
       </div>
       <div id="cal-body"></div>
@@ -479,6 +481,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
     <div class="panel" id="panel-kanban">
       <div class="ph"><div class="pt">Quadro <span>Kadai</span></div><button class="btn-add" onclick="openKModal()">+ Novo Kadai</button></div>
       <div class="kb-toolbar">
+        <select class="si mg-area-sel" id="mg-area-kanban" onchange="renderKanban()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
         <select class="si" id="kf-c" onchange="renderKanban()"><option value="">Todos os Consultores</option></select>
         <select class="si" id="kf-s" onchange="renderKanban()"><option value="">Todos os Status</option><option value="backlog">Backlog</option><option value="doing">Em Andamento</option></select>
         <select class="si" id="kf-o" onchange="renderKanban()"><option value="">Todos os Prazos</option><option value="overdue">Somente Atrasados</option></select>
@@ -492,6 +495,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;justify-content:space-between">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <span style="font-size:10px;font-family:var(--fm);color:var(--t2);letter-spacing:1px;font-weight:700">FILTRAR:</span>
+          <select class="si mg-area-sel" id="mg-area-gantt" onchange="renderGantt()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
           <select class="si" id="gantt-filter-cons" onchange="renderGantt()"><option value="">Todos os Consultores</option></select>
           <select class="si" id="gantt-filter-status" onchange="renderGantt()">
             <option value="">Todos os Status</option>
@@ -555,6 +559,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
             <button class="btn-sec" onclick="exportLog()" style="font-size:11px;padding:5px 12px">⬇ Exportar CSV</button>
           </div>
           <div class="log-toolbar">
+            <select class="si mg-area-sel" id="mg-area-log" onchange="logPage=0;renderLog()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
             <select class="si" id="log-filter" onchange="logPage=0;renderLog()"><option value="">Todos os usuários</option></select>
             <select class="si" id="log-page-size" onchange="logPage=0;renderLog()">
               <option value="10">10 por página</option>
@@ -746,6 +751,10 @@ let users={}, events=[], kadais=[], ganttTasks=[], notifs=[], metas={}, logs=[];
 let ataPhotos=[];
 let evTypes=[];
 let logPage=0;
+window.logPrev=()=>{if(logPage>0){logPage--;renderLog();}};
+window.logNext=()=>{logPage++;renderLog();};
+// Filtros de área por aba — só ativos para Manager
+function mgArea(id){return isManager()?(document.getElementById(id)?.value||''):'';};
 let calView='week', calDate=new Date(), calFilters={};
 let editEvId=null, editKId=null, editGId=null;
 let showDone={};
@@ -837,6 +846,8 @@ async function initApp(){
     else if(UP.area){badge.textContent=UP.area;badge.style.display='';}
   }
   if(isAdmin()||isManager()){$('nav-coord').style.display='';$('humor-wrap').style.display='none';
+    // Mostrar selects de área só para manager
+    document.querySelectorAll('.mg-area-sel').forEach(el=>el.style.display=isManager()?'':'none');
     // nav label para manager
     const navCoord=$('nav-coord');if(navCoord&&isManager())navCoord.innerHTML=navCoord.innerHTML.replace('Coordenação','Gerência');}
   else $('humor-wrap').style.display='';
@@ -985,8 +996,10 @@ window.toggleReadNotifs=()=>{showReadNotifs=!showReadNotifs;renderNotifs();};
 
 // ALERTS
 function generateAlerts(){
+  const aF=mgArea('mg-area-dash');
+  const aF2=x=>!aF||!x.area||x.area===aF;
   const alerts=[];
-  kadais.filter(k=>isOv(k.dueDate)&&k.status!=='done').forEach(k=>{
+  kadais.filter(k=>isOv(k.dueDate)&&k.status!=='done'&&aF2(k)).forEach(k=>{
     const u=users[k.consultantId];if(u)alerts.push({color:'var(--danger)',text:`<b>${u.name.split(' ')[0]}</b>: Kadai atrasado — "${k.title}"`,time:'Kadai'});
   });
   ganttTasks.filter(g=>g.status==='delayed').forEach(g=>alerts.push({color:'var(--danger)',text:`Cronograma atrasado: "<b>${g.name}</b>"`,time:'Cronograma'}));
@@ -998,12 +1011,14 @@ function generateAlerts(){
 }
 
 function renderKPIs(){
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager');
-  const open=kadais.filter(k=>k.status!=='done').length;
-  const ov=kadais.filter(k=>isOv(k.dueDate)&&k.status!=='done').length;
-  const todEvs=events.filter(e=>e.startDate<=today()&&(e.endDate||e.startDate)>=today()&&e.type!=='vacation').length;
-  const vac=events.filter(e=>e.type==='vacation'&&today()>=e.startDate&&today()<=(e.endDate||e.startDate)).length;
-  const del=ganttTasks.filter(g=>g.status==='delayed').length;
+  const aF=mgArea('mg-area-dash');
+  const aFilter=x=>!aF||!x.area||x.area===aF;
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&(!aF||!u.area||u.area===aF));
+  const open=kadais.filter(k=>k.status!=='done'&&aFilter(k)).length;
+  const ov=kadais.filter(k=>isOv(k.dueDate)&&k.status!=='done'&&aFilter(k)).length;
+  const todEvs=events.filter(e=>e.startDate<=today()&&(e.endDate||e.startDate)>=today()&&e.type!=='vacation'&&aFilter(e)).length;
+  const vac=events.filter(e=>e.type==='vacation'&&today()>=e.startDate&&today()<=(e.endDate||e.startDate)&&aFilter(e)).length;
+  const del=ganttTasks.filter(g=>g.status==='delayed'&&aFilter(g)).length;
   const kpis=[
     {lbl:'Consultores Ativos',val:cs.length,sub:'no time',cls:'blue'},
     {lbl:'Kadais Abertos',val:open,sub:'backlog + andamento',cls:'amber'},
@@ -1020,11 +1035,12 @@ function renderKPIs(){
 
 function renderDashWeek(){
   const days=getWeekDays(new Date());
+  const aF=mgArea('mg-area-dash');
   let html='';
   days.forEach(d=>{
     const ds=fmt(d);
-    const de=events.filter(e=>ds>=e.startDate&&ds<=(e.endDate||e.startDate)&&(!isAdmin()?e.consultantId===CU.uid:true));
-    if(de.length>0)html+=`<div class="alert-item"><div class="alert-dot" style="background:var(--blue)"></div><div style="flex:1;font-size:12.5px"><b>${DAYS_S[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</b> — ${de.map(e=>{const u=users[e.consultantId];return e.title+(isAdmin()&&u?' ('+u.name.split(' ')[0]+')':'');}).join(', ')}</div></div>`;
+    const de=events.filter(e=>ds>=e.startDate&&ds<=(e.endDate||e.startDate)&&(isAdmin()||isManager()?true:e.consultantId===CU.uid)&&(!aF||!e.area||e.area===aF));
+    if(de.length>0)html+=`<div class="alert-item"><div class="alert-dot" style="background:var(--blue)"></div><div style="flex:1;font-size:12.5px"><b>${DAYS_S[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</b> — ${de.map(e=>{const u=users[e.consultantId];return e.title+((isAdmin()||isManager())&&u?' ('+u.name.split(' ')[0]+(isManager()&&u.area?' · '+u.area:'')+ ')':'');}).join(', ')}</div></div>`;
   });
   $('week-prev').innerHTML=html||`<div class="empty" style="padding:32px"><div class="empty-icon">📅</div><div class="empty-txt">Sem eventos esta semana</div></div>`;
 }
@@ -1037,7 +1053,8 @@ window.setHumor=async(emoji,label)=>{
 
 // CALENDAR
 function renderCalChips(){
-  const cs=Object.values(users).filter(u=>u.status==='active');
+  const aF=mgArea('mg-area-cal');
+  const cs=Object.values(users).filter(u=>u.status==='active'&&(!aF||!u.area||u.area===aF));
   const c=$('cal-chips');if(!c)return;c.innerHTML='';
   if(Object.keys(calFilters).length===0)cs.forEach(u=>{calFilters[u.uid]=true;});
   cs.forEach(u=>{
@@ -1057,7 +1074,8 @@ function getWeekDays(date){const d=new Date(date),day=d.getDay(),diff=d.getDate(
 function renderWeek(){
   const days=getWeekDays(calDate),ts=today();
   $('cal-title').textContent=`${days[0].getDate()} – ${days[6].getDate()} ${MONTHS[days[6].getMonth()]} ${days[6].getFullYear()}`;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&calFilters[u.uid]);
+  const aFC=mgArea('mg-area-cal');
+  const cs=Object.values(users).filter(u=>u.status==='active'&&calFilters[u.uid]&&(!aFC||!u.area||u.area===aFC));
   let h=`<div class="cal-week"><div class="cwh"><div class="cwhc" style="font-size:10px;color:var(--t2)">CONSULTOR</div>${days.map(d=>`<div class="cwhc${fmt(d)===ts?' today':''}"><div style="font-size:10px;font-family:var(--fm);letter-spacing:1.5px;font-weight:700;color:${fmt(d)===ts?'var(--amber)':'var(--t2)'}">${DAYS_S[d.getDay()].toUpperCase()}</div><div style="font-size:22px;font-family:var(--fd);font-weight:700;line-height:1;color:${fmt(d)===ts?'var(--amber)':'var(--t1)'}">${d.getDate()}</div></div>`).join('')}</div><div>`;
   if(!cs.length)h+=`<div class="empty"><div class="empty-icon">📅</div><div class="empty-txt">Nenhum consultor visível</div></div>`;
   else cs.forEach(u=>{
@@ -1074,7 +1092,8 @@ function renderWeek(){
 function renderMonth(){
   const yr=calDate.getFullYear(),mo=calDate.getMonth();
   $('cal-title').textContent=`${MONTHS[mo]} ${yr}`;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&calFilters[u.uid]);
+  const aFCm=mgArea('mg-area-cal');
+  const cs=Object.values(users).filter(u=>u.status==='active'&&calFilters[u.uid]&&(!aFCm||!u.area||u.area===aFCm));
   const ts=today(),fd=new Date(yr,mo,1).getDay(),dim=new Date(yr,mo+1,0).getDate(),so=fd===0?6:fd-1,pm=new Date(yr,mo,0).getDate();
   let h=`<div class="cal-month"><div class="cmh">${['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(d=>`<div class="cmhc">${d}</div>`).join('')}</div><div class="cmbody">`;
   for(let i=so-1;i>=0;i--)h+=mCell(fmt(new Date(yr,mo-1,pm-i)),pm-i,true,ts,cs);
@@ -1177,9 +1196,10 @@ window.delEv=async()=>{
 
 // KANBAN
 window.renderKanban=()=>{
-  const admin=isAdmin(),fc=v('kf-c'),fs=v('kf-s'),fo=v('kf-o');
-  let cs=Object.values(users).filter(u=>u.status==='active');
-  if(!admin&&!isManager())cs=cs.filter(u=>u.uid===CU.uid);if(fc)cs=cs.filter(u=>u.uid===fc);
+  const admin=isAdmin()||isManager(),fc=v('kf-c'),fs=v('kf-s'),fo=v('kf-o');
+  const aFK=mgArea('mg-area-kanban');
+  let cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&(!aFK||!u.area||u.area===aFK));
+  if(!admin)cs=cs.filter(u=>u.uid===CU.uid);if(fc)cs=cs.filter(u=>u.uid===fc);
   const board=$('kb-board');if(!board)return;
   if(!cs.length){board.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-txt">Nenhum consultor</div></div>`;return;}
   board.innerHTML=cs.map(u=>{
@@ -1434,7 +1454,8 @@ window.renderGantt=()=>{
   }
   const filterC=v('gantt-filter-cons')||null;
   const filterS=v('gantt-filter-status')||null;
-  let ft=ganttTasks;
+  const aFG=mgArea('mg-area-gantt');
+  let ft=aFG?ganttTasks.filter(t=>!t.area||t.area===aFG):ganttTasks;
   if(filterC)ft=ft.filter(t=>t.consultantId===filterC);
   // Filter uses computed status (same logic as render)
   if(filterS)ft=ft.filter(t=>{
@@ -1945,9 +1966,10 @@ window.deleteEvType=async(id)=>{
 window.renderLog=()=>{
   const filterU=v('log-filter');
   const pageSize=parseInt($('log-page-size')?.value||'10');
+  const aFL=mgArea('mg-area-log');
   const filtered=coordFilterUid
-    ? logs.filter(l=>l.uid===coordFilterUid&&(!filterU||l.name===filterU))
-    : logs.filter(l=>!filterU||l.name===filterU);
+    ? logs.filter(l=>l.uid===coordFilterUid&&(!filterU||l.name===filterU)&&(!aFL||!l.area||l.area===aFL))
+    : logs.filter(l=>(!filterU||l.name===filterU)&&(!aFL||!l.area||l.area===aFL));
   const total=filtered.length;
   const totalPages=Math.max(1,Math.ceil(total/pageSize));
   if(logPage>=totalPages)logPage=totalPages-1;
@@ -1974,9 +1996,9 @@ window.renderLog=()=>{
   if(lp){
     lp.style.display='flex';
     lp.innerHTML=`
-      <button class="log-pg-btn" onclick="logPage--;renderLog()" ${logPage===0?'disabled':''}>&#8592; Anterior</button>
+      <button class="log-pg-btn" onclick="logPrev()" ${logPage===0?'disabled':''}>&#8592; Anterior</button>
       <span class="log-pg-info">Página ${logPage+1} de ${totalPages} · ${total} registro(s)</span>
-      <button class="log-pg-btn" onclick="logPage++;renderLog()" ${logPage>=totalPages-1?'disabled':''}>Próximo &#8594;</button>`;
+      <button class="log-pg-btn" onclick="logNext()" ${logPage>=totalPages-1?'disabled':''}>Próximo &#8594;</button>`;
   }
 };
 
