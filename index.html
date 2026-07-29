@@ -1056,7 +1056,8 @@ function renderCalChips(){
   const aF=mgArea('mg-area-cal');
   const cs=Object.values(users).filter(u=>u.status==='active'&&(!aF||!u.area||u.area===aF));
   const c=$('cal-chips');if(!c)return;c.innerHTML='';
-  if(Object.keys(calFilters).length===0)cs.forEach(u=>{calFilters[u.uid]=true;});
+  // Inicializar filtros: novos consultores (ou mudança de área) entram como visíveis
+  cs.forEach(u=>{if(calFilters[u.uid]===undefined)calFilters[u.uid]=true;});
   cs.forEach(u=>{
     const btn=document.createElement('button');const color=u.color||'#666';
     btn.className='fchip'+(calFilters[u.uid]?' on':'');
