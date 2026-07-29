@@ -443,7 +443,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
     <div class="panel active" id="panel-dash">
       <div class="ph">
         <div class="pt">Visão <span>Geral</span></div>
-        <select class="si mg-area-sel" id="mg-area-dash" onchange="renderKPIs();renderDashWeek();generateAlerts()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
+        <select class="si mg-area-sel" id="mg-area-dash" onchange="mgRefreshDash()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
         <div id="humor-wrap" style="display:none">
           <div style="font-size:10px;color:var(--t3);font-family:var(--fm);margin-bottom:6px;letter-spacing:1px">ENERGIA HOJE</div>
           <div class="humor-row">
@@ -471,7 +471,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
         <button class="cal-nav" onclick="calNav(1)">&#8594;</button>
         <button class="cal-nav" onclick="calToday()" style="font-size:10px;font-family:var(--fm);width:auto;padding:0 10px">hoje</button>
         <div class="vtog"><button onclick="setView('week')" id="vw" class="active">Semana</button><button onclick="setView('month')" id="vm">Mês</button></div>
-        <select class="si mg-area-sel" id="mg-area-cal" onchange="renderCal();renderDashWeek()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
+        <select class="si mg-area-sel" id="mg-area-cal" onchange="mgRefreshCal()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
         <div class="fchips" id="cal-chips"></div>
       </div>
       <div id="cal-body"></div>
@@ -481,7 +481,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
     <div class="panel" id="panel-kanban">
       <div class="ph"><div class="pt">Quadro <span>Kadai</span></div><button class="btn-add" onclick="openKModal()">+ Novo Kadai</button></div>
       <div class="kb-toolbar">
-        <select class="si mg-area-sel" id="mg-area-kanban" onchange="renderKanban()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
+        <select class="si mg-area-sel" id="mg-area-kanban" onchange="mgRefreshKanban()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
         <select class="si" id="kf-c" onchange="renderKanban()"><option value="">Todos os Consultores</option></select>
         <select class="si" id="kf-s" onchange="renderKanban()"><option value="">Todos os Status</option><option value="backlog">Backlog</option><option value="doing">Em Andamento</option></select>
         <select class="si" id="kf-o" onchange="renderKanban()"><option value="">Todos os Prazos</option><option value="overdue">Somente Atrasados</option></select>
@@ -495,7 +495,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;justify-content:space-between">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <span style="font-size:10px;font-family:var(--fm);color:var(--t2);letter-spacing:1px;font-weight:700">FILTRAR:</span>
-          <select class="si mg-area-sel" id="mg-area-gantt" onchange="renderGantt()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
+          <select class="si mg-area-sel" id="mg-area-gantt" onchange="mgRefreshGantt()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
           <select class="si" id="gantt-filter-cons" onchange="renderGantt()"><option value="">Todos os Consultores</option></select>
           <select class="si" id="gantt-filter-status" onchange="renderGantt()">
             <option value="">Todos os Status</option>
@@ -535,6 +535,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
       <!-- filter bar -->
       <div class="coord-filter-bar" id="coord-filter-bar">
         <span style="font-size:11px;font-family:var(--fm);color:var(--t3);letter-spacing:1px">FILTRAR POR:</span>
+        <select class="si mg-area-sel" id="mg-area-coord" onchange="mgRefreshCoord()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
         <button class="coord-chip all active" onclick="coordFilter(null,this)">Todos</button>
       </div>
       <!-- charts -->
@@ -559,7 +560,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
             <button class="btn-sec" onclick="exportLog()" style="font-size:11px;padding:5px 12px">⬇ Exportar CSV</button>
           </div>
           <div class="log-toolbar">
-            <select class="si mg-area-sel" id="mg-area-log" onchange="logPage=0;renderLog()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
+            <select class="si mg-area-sel" id="mg-area-log" onchange="mgRefreshLog()" style="display:none"><option value="">Todas as AOPVs</option><option value="AOPV1">AOPV1</option><option value="AOPV2">AOPV2</option><option value="AOPV3">AOPV3</option><option value="AOPV4">AOPV4</option></select>
             <select class="si" id="log-filter" onchange="logPage=0;renderLog()"><option value="">Todos os usuários</option></select>
             <select class="si" id="log-page-size" onchange="logPage=0;renderLog()">
               <option value="10">10 por página</option>
@@ -754,13 +755,32 @@ let logPage=0;
 window.logPrev=()=>{if(logPage>0){logPage--;renderLog();}};
 window.logNext=()=>{logPage++;renderLog();};
 // Filtros de área por aba — só ativos para Manager
-function mgArea(id){return isManager()?(document.getElementById(id)?.value||''):'';};
+function mgArea(id){return isManager()?(document.getElementById(id)?.value||''):'';}
+window.mgRefreshDash=()=>{renderKPIs();renderDashWeek();generateAlerts();};
+window.mgRefreshCal=()=>{
+  // Ao mudar área, resetar calFilters para que todos os consultores da nova área apareçam
+  calFilters={};
+  renderCalChips();renderCal();
+};
+window.mgRefreshKanban=()=>{renderKanban();};
+window.mgRefreshGantt=()=>{renderGantt();};
+window.mgRefreshLog=()=>{logPage=0;renderLog();};
+window.mgRefreshCoord=()=>{
+  coordAreaFilter=mgArea('mg-area-coord');
+  // Resetar filtro de consultor individual ao trocar área
+  coordFilterUid=null;
+  document.querySelectorAll('.coord-chip').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.coord-chip.all')?.classList.add('active');
+  buildCoordFilter();
+  renderAdmin();renderMetas();renderCompTable();renderCharts();renderLog();
+};
 let calView='week', calDate=new Date(), calFilters={};
 let editEvId=null, editKId=null, editGId=null;
 let showDone={};
 let gColor='#3b82f6';
 let charts={};
 let coordFilterUid=null;
+let coordAreaFilter='';
 let categories=[];
 let editingColorUid=null;
 let ganttZoom='week';
@@ -927,8 +947,9 @@ function populateSels(){
 
 window.renderAdmin=()=>{
   if(!isAdmin()&&!isManager())return;
-  const pend=Object.values(users).filter(u=>u.status==='pending');
-  const act=Object.values(users).filter(u=>u.status==='active'||u.status==='inactive');
+  const areaF=coordAreaFilter;
+  const pend=Object.values(users).filter(u=>u.status==='pending'&&(!areaF||!u.area||u.area===areaF));
+  const act=Object.values(users).filter(u=>(u.status==='active'||u.status==='inactive')&&(!areaF||!u.area||u.area===areaF));
   const roleLabel=u=>{
     if(u.role==='manager')return'<span class="badge" style="background:rgba(229,0,0,.14);color:var(--red)">Gerente</span>';
     if(u.role==='coordinator'||u.role==='admin')return'<span class="badge b-coord">Coord</span>';
@@ -1056,7 +1077,7 @@ function renderCalChips(){
   const aF=mgArea('mg-area-cal');
   const cs=Object.values(users).filter(u=>u.status==='active'&&(!aF||!u.area||u.area===aF));
   const c=$('cal-chips');if(!c)return;c.innerHTML='';
-  // Inicializar filtros: novos consultores (ou mudança de área) entram como visíveis
+  // Inicializar filtros: qualquer consultor sem entrada entra como visível
   cs.forEach(u=>{if(calFilters[u.uid]===undefined)calFilters[u.uid]=true;});
   cs.forEach(u=>{
     const btn=document.createElement('button');const color=u.color||'#666';
@@ -1295,7 +1316,7 @@ window.delG=async()=>{if(!editGId||!confirm('Excluir?'))return;for(const ch of g
 // METAS
 function renderMetas(){
   if(!isAdmin()&&!isManager())return;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager');
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&(!coordAreaFilter||!u.area||u.area===coordAreaFilter));
   const mo=new Date().getMonth(),yr=new Date().getFullYear();
   const moStr=`${yr}-${String(mo+1).padStart(2,'0')}`;
   $('meta-body').innerHTML=cs.map(u=>{
@@ -1311,7 +1332,7 @@ window.saveMeta=async()=>{const uid=v('meta-cons'),goal=parseInt(v('meta-val'))|
 // COORD FILTER
 function buildCoordFilter(){
   if(!isAdmin()&&!isManager())return;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager');
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&(!coordAreaFilter||!u.area||u.area===coordAreaFilter));
   const bar=$('coord-filter-bar');if(!bar)return;
   const existing=bar.querySelectorAll('.coord-chip:not(.all)');existing.forEach(e=>e.remove());
   cs.forEach(u=>{
@@ -1333,7 +1354,7 @@ window.coordFilter=(uid,btn)=>{
 // COMP TABLE
 async function renderCompTable(){
   if(!isAdmin()&&!isManager())return;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&(!coordFilterUid||u.uid===coordFilterUid));
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&(!coordFilterUid||u.uid===coordFilterUid)&&(!coordAreaFilter||!u.area||u.area===coordAreaFilter));
   const mo=new Date().getMonth(),yr=new Date().getFullYear();
   const moStr=`${yr}-${String(mo+1).padStart(2,'0')}`;
   let humorMap={};
@@ -1366,7 +1387,7 @@ async function renderCompTable(){
 // CHARTS
 function renderCharts(){
   if(!isAdmin()&&!isManager())return;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&(!coordFilterUid||u.uid===coordFilterUid));
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&(!coordFilterUid||u.uid===coordFilterUid)&&(!coordAreaFilter||!u.area||u.area===coordAreaFilter));
   const now=new Date();
   const mo=now.getMonth(),yr=now.getFullYear();
   const moStr=`${yr}-${String(mo+1).padStart(2,'0')}`;
@@ -1800,7 +1821,7 @@ window.exportGanttPNG=async()=>{
 function populateGanttFilter(){
   const sel=$('gantt-filter-cons');if(!sel)return;
   const cur=sel.value;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager');
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&(!coordAreaFilter||!u.area||u.area===coordAreaFilter));
   sel.innerHTML=`<option value="">Todos os Consultores</option>`+cs.map(u=>`<option value="${u.uid}">${isManager()&&u.area?u.name+' ('+u.area+')':u.name}</option>`).join('');
   if(cur)sel.value=cur;
 }
@@ -1969,8 +1990,8 @@ window.renderLog=()=>{
   const pageSize=parseInt($('log-page-size')?.value||'10');
   const aFL=mgArea('mg-area-log');
   const filtered=coordFilterUid
-    ? logs.filter(l=>l.uid===coordFilterUid&&(!filterU||l.name===filterU)&&(!aFL||!l.area||l.area===aFL))
-    : logs.filter(l=>(!filterU||l.name===filterU)&&(!aFL||!l.area||l.area===aFL));
+    ? logs.filter(l=>l.uid===coordFilterUid&&(!filterU||l.name===filterU)&&(!aFL||!l.area||l.area===aFL)&&(!coordAreaFilter||!l.area||l.area===coordAreaFilter))
+    : logs.filter(l=>(!filterU||l.name===filterU)&&(!aFL||!l.area||l.area===aFL)&&(!coordAreaFilter||!l.area||l.area===coordAreaFilter));
   const total=filtered.length;
   const totalPages=Math.max(1,Math.ceil(total/pageSize));
   if(logPage>=totalPages)logPage=totalPages-1;
