@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AOPV1 · Gestão de Pós-Vendas</title>
+<title>AOPV · Gestão de Pós-Vendas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -323,6 +323,38 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 .user-row .color-dot{width:14px;height:14px;border-radius:50%;cursor:pointer;flex-shrink:0;border:1px solid rgba(255,255,255,.2);transition:var(--tr)}
 .user-row .color-dot:hover{transform:scale(1.2)}
 
+/* ATA DE VISITA */
+.ata-section{margin-top:18px;border-top:1px solid var(--bd);padding-top:16px}
+.ata-section-title{font-size:10px;font-family:var(--fm);letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:12px;font-weight:700}
+.ata-field{margin-bottom:14px}
+.ata-label{display:block;font-size:10px;font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.ata-textarea{width:100%;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r);padding:10px 13px;color:var(--t1);font-size:13px;resize:vertical;min-height:72px;transition:var(--tr);font-family:var(--fb);line-height:1.5}
+.ata-textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--redg)}
+.ata-photos-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.ata-photo-thumb{width:72px;height:72px;border-radius:var(--r);object-fit:cover;border:1px solid var(--bdl);cursor:pointer;transition:var(--tr)}
+.ata-photo-thumb:hover{opacity:.8;transform:scale(1.04)}
+.ata-photo-add{width:72px;height:72px;border-radius:var(--r);border:2px dashed var(--bdl);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);font-size:10px;gap:4px;transition:var(--tr);background:transparent}
+.ata-photo-add:hover{border-color:var(--red);color:var(--red)}
+.ata-photo-add span{font-size:18px}
+.ata-photo-del{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:var(--danger);border:none;color:#fff;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.ata-photo-item{position:relative;display:inline-block}
+/* LOG COMPACTADO */
+.log-row{padding:9px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;font-size:12px;cursor:pointer;transition:var(--tr)}
+.log-row:last-child{border-bottom:none}
+.log-row:hover{background:var(--bg4)}
+.log-row-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0}
+.log-row-who{font-weight:600;min-width:80px;font-size:11.5px;color:var(--t1)}
+.log-row-action{flex:1;color:var(--t2);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log-row-time{font-size:10px;font-family:var(--fm);color:var(--t3);flex-shrink:0}
+.log-row-arrow{color:var(--t3);font-size:11px;flex-shrink:0}
+/* MODAL LOG DETALHE */
+#mo-log-detail .modal{max-width:420px}
+.log-detail-field{padding:10px 0;border-bottom:1px solid var(--bd);font-size:12.5px}
+.log-detail-field:last-child{border-bottom:none}
+.log-detail-lbl{font-size:10px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+/* MODAL FOTO GRANDE */
+#mo-photo-view .modal{background:rgba(0,0,0,.92);border:1px solid var(--bdl);max-width:90vw;text-align:center}
+#mo-photo-view img{max-width:100%;max-height:80vh;border-radius:var(--r);display:block;margin:0 auto}
 /* GANTT GROUP HEADER */
 .gantt-group-header td{background:var(--bg1)!important;padding:8px 14px!important;font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:.5px;border-bottom:2px solid var(--bdl)!important}
 .gantt-group-header td.gcol-name{background:var(--bg1)!important}
@@ -343,14 +375,14 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 </style>
 </head>
 <body>
-<div class="loading-ov" id="loading"><div class="spin"></div><div class="spin-txt">Carregando AOPV1...</div></div>
+<div class="loading-ov" id="loading"><div class="spin"></div><div class="spin-txt">Carregando AOPV...</div></div>
 <div class="toast-c" id="toastC"></div>
 
 <!-- LOGIN -->
 <div class="screen" id="screen-login">
   <div class="lg-grid"></div><div class="lg-glow"></div>
   <div class="login-box">
-    <div class="lb-brand"><div class="lb-mark">T</div><div class="lb-name">AOPV<span>1</span></div></div>
+    <div class="lb-brand"><div class="lb-mark">T</div><div class="lb-name">AOPV<span>·</span>Gestão</div></div>
     <div class="lb-sub">Toyota · Pós-Vendas · São Paulo</div>
     <div class="tab-row">
       <button class="tab-btn active" onclick="loginTab('l')">Entrar</button>
@@ -375,7 +407,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 <!-- APP -->
 <div class="screen" id="screen-app" style="flex-direction:column">
   <div class="topbar">
-    <div class="tb-brand"><div class="tb-mark">T</div>AOPV<span>1</span></div>
+    <div class="tb-brand"><div class="tb-mark">T</div>AOPV<span> Gestão</span></div>
     <div class="tb-div"></div>
     <nav class="tb-nav">
       <button class="nb active" onclick="go('dash')" id="nav-dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</button>
@@ -559,17 +591,55 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
 </div>
 
 <div class="mo" id="mo-ev">
-  <div class="modal">
+  <div class="modal" style="max-width:560px">
     <div class="mh"><div class="mt" id="mo-ev-t">Nova Entrada</div><button class="mx" onclick="closeMo('mo-ev')">×</button></div>
     <div class="mb">
-      <div class="fg"><label class="fl">Tipo</label><select class="fi si" id="ev-type"><option value="visit">Visita</option><option value="vacation">Férias</option><option value="meeting">Reunião</option><option value="other">Outro</option></select></div>
+      <div class="fg"><label class="fl">Tipo</label><select class="fi si" id="ev-type" onchange="toggleAtaSection()"><option value="visit">Visita</option><option value="vacation">Férias</option><option value="meeting">Reunião</option><option value="other">Outro</option></select></div>
       <div class="fg"><label class="fl">Título</label><input class="fi" type="text" id="ev-title" placeholder="Ex: Visita Concessionária Centro"></div>
       <div class="fg" id="ev-cg"><label class="fl">Consultor</label><select class="fi si" id="ev-cons"></select></div>
       <div class="fg"><label class="fl">Data Início</label><input class="fi" type="date" id="ev-start"></div>
       <div class="fg"><label class="fl">Data Fim</label><input class="fi" type="date" id="ev-end"></div>
       <div class="fg"><label class="fl">Observação</label><input class="fi" type="text" id="ev-note"></div>
+      <!-- ATA DE VISITA -->
+      <div class="ata-section" id="ata-section" style="display:none">
+        <div class="ata-section-title">📋 Ata de Visita</div>
+        <div class="ata-field">
+          <label class="ata-label">Participantes</label>
+          <textarea class="ata-textarea" id="ata-participantes" placeholder="Nome dos participantes presentes na visita..." rows="2"></textarea>
+        </div>
+        <div class="ata-field">
+          <label class="ata-label">Assunto Tratado</label>
+          <textarea class="ata-textarea" id="ata-assunto" placeholder="Principais tópicos discutidos durante a visita..." rows="3"></textarea>
+        </div>
+        <div class="ata-field">
+          <label class="ata-label">Próximos Passos</label>
+          <textarea class="ata-textarea" id="ata-proximos" placeholder="Ações definidas e responsáveis..." rows="3"></textarea>
+        </div>
+        <div class="ata-field">
+          <label class="ata-label">Fotos da Visita <span style="color:var(--t3);font-size:9px">(máx. 5)</span></label>
+          <div class="ata-photos-wrap" id="ata-photos-wrap"></div>
+          <input type="file" id="ata-photo-input" accept="image/*" multiple style="display:none" onchange="handlePhotoSelect(event)">
+        </div>
+      </div>
     </div>
     <div class="mf"><button class="btn-del" id="ev-del" onclick="delEv()" style="display:none">Excluir</button><button class="btn-sec" onclick="closeMo('mo-ev')">Cancelar</button><button class="btn-sub" onclick="saveEv()">Salvar</button></div>
+  </div>
+</div>
+
+<!-- MODAL VISUALIZAR FOTO -->
+<div class="mo" id="mo-photo-view">
+  <div class="modal">
+    <div class="mh"><div class="mt">Foto</div><button class="mx" onclick="closeMo('mo-photo-view')">×</button></div>
+    <div class="mb" style="padding:14px"><img id="photo-view-img" src="" alt="Foto da visita"></div>
+  </div>
+</div>
+
+<!-- MODAL DETALHE DO LOG -->
+<div class="mo" id="mo-log-detail">
+  <div class="modal">
+    <div class="mh"><div class="mt">Detalhe do Registro</div><button class="mx" onclick="closeMo('mo-log-detail')">×</button></div>
+    <div class="mb" id="log-detail-body"></div>
+    <div class="mf"><button class="btn-sec" onclick="closeMo('mo-log-detail')">Fechar</button></div>
   </div>
 </div>
 
@@ -641,6 +711,7 @@ const db = getFirestore(app);
 
 let CU=null, UP=null;
 let users={}, events=[], kadais=[], ganttTasks=[], notifs=[], metas={}, logs=[];
+let ataPhotos=[];
 let calView='week', calDate=new Date(), calFilters={};
 let editEvId=null, editKId=null, editGId=null;
 let showDone={};
@@ -926,21 +997,69 @@ function mCell(ds,n,om,ts,cs){
   const de=events.filter(e=>cs.some(c=>c.uid===e.consultantId)&&ds>=e.startDate&&ds<=(e.endDate||e.startDate)&&calFilters[e.consultantId]);
   return `<div class="cmcell${om?' om':''}${ds===ts?' today':''}"><div class="cdn">${n}</div>${de.slice(0,3).map(e=>{const color=users[e.consultantId]?.color||'#666';return `<div class="cev${e.type==='vacation'?' vacation':''}" style="background:${color}1a;border-left-color:${color};color:${color}" onclick="openEvModal('${e.id}')">${e.type==='vacation'?'🏖 ':''}${e.title}</div>`;}).join('')}${de.length>3?`<div style="font-size:10px;color:var(--t3)">+${de.length-3}</div>`:''}</div>`;
 }
+window.toggleAtaSection=()=>{
+  const type=v('ev-type');
+  $('ata-section').style.display=(type==='visit'||type==='meeting')?'':'none';
+};
 window.openEvModal=function(id=null){
   editEvId=id;const admin=isAdmin();
   $('mo-ev-t').textContent=id?'Editar Entrada':'Nova Entrada';
-  $('ev-del').style.display=id&&admin?'':'none';$('ev-cg').style.display=admin?'':'none';
-  if(id){const e=events.find(x=>x.id===id);if(e){sv('ev-type',e.type);sv('ev-title',e.title);sv('ev-cons',e.consultantId);sv('ev-start',e.startDate);sv('ev-end',e.endDate||'');sv('ev-note',e.note||'');}}
-  else{sv('ev-type','visit');sv('ev-title','');sv('ev-start',today());sv('ev-end','');sv('ev-note','');if(!admin)sv('ev-cons',CU.uid);}
+  // Excluir: admin pode tudo, consultor pode excluir só as suas
+  let canDel=false;
+  if(id){
+    const e=events.find(x=>x.id===id);
+    canDel=admin||(e&&e.consultantId===CU.uid);
+  }
+  $('ev-del').style.display=canDel?'':'none';
+  $('ev-cg').style.display=admin?'':'none';
+  // Limpar ata
+  sv('ata-participantes','');sv('ata-assunto','');sv('ata-proximos','');
+  ataPhotos=[];renderAtaPhotos();
+  if(id){
+    const e=events.find(x=>x.id===id);
+    if(e){
+      sv('ev-type',e.type);sv('ev-title',e.title);sv('ev-cons',e.consultantId);
+      sv('ev-start',e.startDate);sv('ev-end',e.endDate||'');sv('ev-note',e.note||'');
+      // Carregar ata se existir
+      if(e.ata){
+        sv('ata-participantes',e.ata.participantes||'');
+        sv('ata-assunto',e.ata.assunto||'');
+        sv('ata-proximos',e.ata.proximos||'');
+        ataPhotos=e.ata.photos||[];
+        renderAtaPhotos();
+      }
+    }
+  } else {
+    sv('ev-type','visit');sv('ev-title','');sv('ev-start',today());sv('ev-end','');sv('ev-note','');
+    if(!admin)sv('ev-cons',CU.uid);
+  }
+  toggleAtaSection();
   openMo('mo-ev');
 };
 window.saveEv=async()=>{
   const cid=isAdmin()?v('ev-cons'):CU.uid,title=v('ev-title'),start=v('ev-start');
   if(!title||!start){showToast('Preencha título e data.','err');return;}
-  const data={type:v('ev-type'),title,consultantId:cid,startDate:start,endDate:v('ev-end')||start,note:v('ev-note'),updatedAt:serverTimestamp()};
-  try{if(editEvId)await updateDoc(doc(db,'events',editEvId),data);else{await addDoc(collection(db,'events'),{...data,createdAt:serverTimestamp()});await addLog('Evento',`${UP.name} criou "${title}"`);}closeMo('mo-ev');showToast(editEvId?'Atualizado!':'Criado!','ok');}catch(e){showToast('Erro.','err');}
+  const type=v('ev-type');
+  const ata=(type==='visit'||type==='meeting')?{
+    participantes:v('ata-participantes'),
+    assunto:v('ata-assunto'),
+    proximos:v('ata-proximos'),
+    photos:ataPhotos
+  }:null;
+  const data={type,title,consultantId:cid,startDate:start,endDate:v('ev-end')||start,note:v('ev-note'),updatedAt:serverTimestamp()};
+  if(ata)data.ata=ata;
+  try{
+    if(editEvId)await updateDoc(doc(db,'events',editEvId),data);
+    else{await addDoc(collection(db,'events'),{...data,createdAt:serverTimestamp()});await addLog('Evento',`${UP.name} criou "${title}"`);}
+    closeMo('mo-ev');showToast(editEvId?'Atualizado!':'Criado!','ok');
+  }catch(e){showToast('Erro ao salvar.','err');console.error(e);}
 };
-window.delEv=async()=>{if(!editEvId||!confirm('Excluir?'))return;await deleteDoc(doc(db,'events',editEvId));closeMo('mo-ev');showToast('Excluído.','inf');};
+window.delEv=async()=>{
+  if(!editEvId||!confirm('Excluir esta entrada?'))return;
+  const e=events.find(x=>x.id===editEvId);
+  if(e&&e.consultantId!==CU.uid&&!isAdmin()){showToast('Sem permissão.','err');return;}
+  await deleteDoc(doc(db,'events',editEvId));closeMo('mo-ev');showToast('Excluído.','inf');
+};
 
 // KANBAN
 window.renderKanban=()=>{
@@ -1162,8 +1281,28 @@ window.renderLog=()=>{
   const filtered=coordFilterUid
     ? logs.filter(l=>l.uid===coordFilterUid&&(!filterU||l.name===filterU))
     : logs.filter(l=>!filterU||l.name===filterU);
-  $('log-body').innerHTML=filtered.length===0?`<div class="empty" style="padding:24px"><div class="empty-txt">Sem registros</div></div>`
-    :filtered.slice(0,50).map(l=>`<div class="log-item"><div style="width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0"></div><div style="flex:1"><span style="font-weight:600">${l.name?.split(' ')[0]||'?'}</span> · ${l.action} — ${l.detail}</div><div style="font-size:10px;font-family:var(--fm);color:var(--t3);flex-shrink:0">${l.createdAt?new Date(l.createdAt.seconds*1000).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—'}</div></div>`).join('');
+  if(!filtered.length){$('log-body').innerHTML=`<div class="empty" style="padding:24px"><div class="empty-txt">Sem registros</div></div>`;return;}
+  $('log-body').innerHTML=filtered.slice(0,80).map(l=>{
+    const ts=l.createdAt?new Date(l.createdAt.seconds*1000).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+    const detail=(l.detail||'').length>55?(l.detail||'').substring(0,55)+'…':(l.detail||'');
+    return `<div class="log-row" onclick="openLogDetail(${JSON.stringify(l).replace(/"/g,'&quot;')})">
+      <div class="log-row-dot"></div>
+      <div class="log-row-who">${l.name?.split(' ')[0]||'?'}</div>
+      <div class="log-row-action">${l.action} — ${detail}</div>
+      <div class="log-row-time">${ts}</div>
+      <div class="log-row-arrow">›</div>
+    </div>`;
+  }).join('');
+};
+window.openLogDetail=(l)=>{
+  const ts=l.createdAt?new Date(l.createdAt.seconds*1000).toLocaleString('pt-BR'):'—';
+  $('log-detail-body').innerHTML=`
+    <div class="log-detail-field"><div class="log-detail-lbl">Usuário</div>${l.name||'—'}</div>
+    <div class="log-detail-field"><div class="log-detail-lbl">Ação</div>${l.action||'—'}</div>
+    <div class="log-detail-field"><div class="log-detail-lbl">Detalhe</div><span style="color:var(--t2)">${l.detail||'—'}</span></div>
+    <div class="log-detail-field"><div class="log-detail-lbl">Data/Hora</div><span style="font-family:var(--fm);font-size:12px">${ts}</span></div>
+  `;
+  openMo('mo-log-detail');
 };
 window.exportLog=()=>{
   const filterU=v('log-filter');
@@ -1555,6 +1694,39 @@ window.go=tab=>{
   if(tab==='notif')renderNotifs();
 };
 
+
+// ── ATA DE VISITA — FOTOS (base64, sem Firebase Storage) ──
+function renderAtaPhotos(){
+  const wrap=$('ata-photos-wrap');if(!wrap)return;
+  const MAX=5;
+  let html=ataPhotos.map((p,i)=>`
+    <div class="ata-photo-item">
+      <img class="ata-photo-thumb" src="${p}" onclick="viewPhoto('${p}')" title="Ver foto">
+      <button class="ata-photo-del" onclick="removeAtaPhoto(${i})" title="Remover">×</button>
+    </div>`).join('');
+  if(ataPhotos.length<MAX){
+    html+=`<div class="ata-photo-add" onclick="$('ata-photo-input').click()"><span>+</span><span>Foto</span></div>`;
+  }
+  wrap.innerHTML=html;
+}
+window.handlePhotoSelect=async(evt)=>{
+  const files=Array.from(evt.target.files);
+  const MAX=5;
+  const remaining=MAX-ataPhotos.length;
+  if(!remaining){showToast('Máximo de 5 fotos atingido.','err');return;}
+  const toProcess=files.slice(0,remaining);
+  for(const file of toProcess){
+    if(!file.type.startsWith('image/')){showToast('Apenas imagens.','err');continue;}
+    if(file.size>2*1024*1024){showToast(`${file.name} muito grande (máx 2MB).','err`);continue;}
+    const b64=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});
+    ataPhotos.push(b64);
+  }
+  evt.target.value='';
+  renderAtaPhotos();
+  if(files.length>remaining)showToast(`Apenas ${remaining} foto(s) adicionada(s) — limite de 5.`,'inf');
+};
+window.removeAtaPhoto=(idx)=>{ataPhotos.splice(idx,1);renderAtaPhotos();};
+window.viewPhoto=(src)=>{$('photo-view-img').src=src;openMo('mo-photo-view');};
 
 // ── CATEGORIES ──
 const DEFAULT_CATS = ['treinamento','processo','auditoria','implantacao','followup','relatorio'];
