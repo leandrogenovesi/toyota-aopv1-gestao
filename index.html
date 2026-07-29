@@ -846,9 +846,19 @@ async function initApp(){
 function subAll(){
   unsubFns.push(onSnapshot(collection(db,'users'),snap=>{
     const all={};snap.forEach(d=>all[d.id]={...d.data(),uid:d.id});
-    // Manager vê todos; coordenador vê só sua área + a si mesmo; consultor idem
-    if(isManager()){users=all;}
-    else{users={};Object.values(all).forEach(u=>{if(!u.area||u.area===myArea()||u.uid===CU.uid)users[u.uid]=u;});}
+    if(isManager()){
+      // Gerente: vê absolutamente todos
+      users=all;
+    } else {
+      // Coordenador e Consultor: vê APENAS usuários da própria área (+ si mesmo por segurança)
+      const area=myArea();
+      users={};
+      Object.values(all).forEach(u=>{
+        // Documentos sem campo 'area' são legados da AOPV1 — visíveis só para AOPV1
+        const uArea=u.area||'AOPV1';
+        if(uArea===area||u.uid===CU.uid)users[u.uid]=u;
+      });
+    }
     updateAdminBdg();populateSels();renderCalChips();renderKanban();renderAdmin();renderMetas();renderCompTable();buildCoordFilter();populateGanttFilter();
   }));
   unsubFns.push(onSnapshot(collection(db,'events'),snap=>{
@@ -886,7 +896,7 @@ async function addLog(action,detail){
 
 // USERS
 function updateAdminBdg(){
-  // manager vê todos pendentes; coordenador só da sua área (já filtrado em users)
+  // users já filtrado por área em subAll — badge reflete apenas a área correta
   const n=Object.values(users).filter(u=>u.status==='pending').length;
   [$('admin-bdg'),$('pend-lbl')].forEach(el=>{if(el){el.textContent=n;el.style.display=n>0?'':'none';}});
 }
@@ -918,9 +928,21 @@ window.renderAdmin=()=>{
     :pend.map(u=>`<div class="user-row"><div class="ur-av" style="background:${u.color||'#666'}">${initials(u.name)}</div><div class="ur-info"><div class="ur-name">${u.name} ${areaTag(u)}</div><div class="ur-email">${u.email}</div></div><div class="ur-actions"><button class="btn-sm btn-ok" onclick="approveU('${u.uid}')">Aprovar</button><button class="btn-sm btn-rej" onclick="rejectU('${u.uid}')">Rejeitar</button></div></div>`).join('');
   $('users-list').innerHTML=act.map(u=>`<div class="user-row"><div class="ur-av" style="background:${u.color||'#666'}">${initials(u.name)}</div><div class="ur-info"><div class="ur-name">${u.name} ${areaTag(u)}</div><div class="ur-email">${u.email}</div></div><div class="ur-actions"><div class="color-dot" style="background:${u.color||'#3b82f6'}" onclick="openColorModal('${u.uid}')" title="Editar cor"></div>${roleLabel(u)}${u.uid!==CU.uid?`<button class="btn-sm btn-dis" onclick="toggleU('${u.uid}','${u.status}')">${u.status==='active'?'Desativar':'Ativar'}</button>`:''}</div></div>`).join('');
 };
-window.approveU=async uid=>{await updateDoc(doc(db,'users',uid),{status:'active'});await pushNotif(uid,'Seu acesso foi aprovado!','✅');showToast('Aprovado!','ok');};
+window.approveU=async uid=>{
+  const u=users[uid];
+  if(!u){showToast('Usuário não encontrado.','err');return;}
+  if(!isManager()&&u.area&&u.area!==myArea()){showToast('Sem permissão para aprovar usuário de outra área.','err');return;}
+  await updateDoc(doc(db,'users',uid),{status:'active'});
+  await pushNotif(uid,'Seu acesso foi aprovado!','✅');
+  showToast('Aprovado!','ok');
+};
 window.rejectU=async uid=>{await updateDoc(doc(db,'users',uid),{status:'inactive'});showToast('Rejeitado.','inf');};
-window.toggleU=async(uid,s)=>{await updateDoc(doc(db,'users',uid),{status:s==='active'?'inactive':'active'});showToast('Atualizado.','ok');};
+window.toggleU=async(uid,s)=>{
+  const u=users[uid];
+  if(!isManager()&&u?.area&&u.area!==myArea()){showToast('Sem permissão.','err');return;}
+  await updateDoc(doc(db,'users',uid),{status:s==='active'?'inactive':'active'});
+  showToast('Atualizado.','ok');
+};
 
 // NOTIFICATIONS
 async function pushNotif(uid,text,icon='🔔'){
@@ -976,7 +998,7 @@ function generateAlerts(){
 }
 
 function renderKPIs(){
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin');
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager');
   const open=kadais.filter(k=>k.status!=='done').length;
   const ov=kadais.filter(k=>isOv(k.dueDate)&&k.status!=='done').length;
   const todEvs=events.filter(e=>e.startDate<=today()&&(e.endDate||e.startDate)>=today()&&e.type!=='vacation').length;
@@ -1074,20 +1096,29 @@ window.toggleAtaSection=()=>{
 window.openEvModal=function(id=null){
   editEvId=id;const admin=isAdmin();
   $('mo-ev-t').textContent=id?'Editar Entrada':'Nova Entrada';
-  // Excluir: admin pode tudo, consultor pode excluir só as suas
+  // Excluir: admin/manager pode tudo, consultor pode excluir só as suas
   let canDel=false;
-  if(id){
-    const e=events.find(x=>x.id===id);
-    canDel=admin||(e&&e.consultantId===CU.uid);
-  }
+  if(id){const e=events.find(x=>x.id===id);canDel=admin||isManager()||(e&&e.consultantId===CU.uid);}
   $('ev-del').style.display=canDel?'':'none';
   $('ev-cg').style.display=(admin||isManager())?'':'none';
   // Limpar ata
   sv('ata-participantes','');sv('ata-assunto','');sv('ata-proximos','');
   ataPhotos=[];renderAtaPhotos();
+
+  // Garantir que o select de tipo esteja populado antes de setar valor
+  populateEvTypeSelect();
+
   if(id){
     const e=events.find(x=>x.id===id);
     if(e){
+      // Se o tipo do evento não estiver nas opções (tipo customizado antigo), adicionar temporariamente
+      const sel=$('ev-type');
+      const hasOpt=sel&&Array.from(sel.options).some(o=>o.value===e.type);
+      if(sel&&!hasOpt){
+        const opt=document.createElement('option');
+        opt.value=e.type;opt.textContent=e.type;
+        sel.appendChild(opt);
+      }
       sv('ev-type',e.type);sv('ev-title',e.title);sv('ev-cons',e.consultantId);
       sv('ev-start',e.startDate);sv('ev-end',e.endDate||'');sv('ev-note',e.note||'');
       // Carregar ata se existir
@@ -1095,13 +1126,17 @@ window.openEvModal=function(id=null){
         sv('ata-participantes',e.ata.participantes||'');
         sv('ata-assunto',e.ata.assunto||'');
         sv('ata-proximos',e.ata.proximos||'');
-        ataPhotos=e.ata.photos||[];
+        ataPhotos=Array.isArray(e.ata.photos)?e.ata.photos:[];
         renderAtaPhotos();
       }
     }
   } else {
-    sv('ev-type','visit');sv('ev-title','');sv('ev-start',today());sv('ev-end','');sv('ev-note','');
-    if(!admin)sv('ev-cons',CU.uid);
+    // Nova entrada: selecionar primeiro tipo disponível (ou 'visit' se existir)
+    const sel=$('ev-type');
+    const hasVisit=sel&&Array.from(sel.options).some(o=>o.value==='visit');
+    if(sel&&hasVisit)sel.value='visit';
+    sv('ev-title','');sv('ev-start',today());sv('ev-end','');sv('ev-note','');
+    if(!admin&&!isManager())sv('ev-cons',CU.uid);
   }
   toggleAtaSection();
   openMo('mo-ev');
@@ -1110,11 +1145,13 @@ window.saveEv=async()=>{
   const cid=(isAdmin()||isManager())?v('ev-cons'):CU.uid,title=v('ev-title'),start=v('ev-start');
   if(!title||!start){showToast('Preencha título e data.','err');return;}
   const type=v('ev-type');
-  const ata=(type==='visit'||type==='meeting')?{
+  // Ata: mostrar para qualquer tipo exceto férias
+  const noAtaTypes=['vacation'];
+  const ata=!noAtaTypes.includes(type)?{
     participantes:v('ata-participantes'),
     assunto:v('ata-assunto'),
     proximos:v('ata-proximos'),
-    photos:ataPhotos
+    photos:Array.isArray(ataPhotos)?ataPhotos:[]
   }:null;
   const area=isManager()?(users[cid]?.area||'AOPV1'):(myArea()||'AOPV1');
   const data={type,title,consultantId:cid,area,startDate:start,endDate:v('ev-end')||start,note:v('ev-note'),updatedAt:serverTimestamp()};
@@ -1231,7 +1268,7 @@ window.delG=async()=>{if(!editGId||!confirm('Excluir?'))return;for(const ch of g
 // METAS
 function renderMetas(){
   if(!isAdmin()&&!isManager())return;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin');
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager');
   const mo=new Date().getMonth(),yr=new Date().getFullYear();
   const moStr=`${yr}-${String(mo+1).padStart(2,'0')}`;
   $('meta-body').innerHTML=cs.map(u=>{
@@ -1247,7 +1284,7 @@ window.saveMeta=async()=>{const uid=v('meta-cons'),goal=parseInt(v('meta-val'))|
 // COORD FILTER
 function buildCoordFilter(){
   if(!isAdmin()&&!isManager())return;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin');
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager');
   const bar=$('coord-filter-bar');if(!bar)return;
   const existing=bar.querySelectorAll('.coord-chip:not(.all)');existing.forEach(e=>e.remove());
   cs.forEach(u=>{
@@ -1269,7 +1306,7 @@ window.coordFilter=(uid,btn)=>{
 // COMP TABLE
 async function renderCompTable(){
   if(!isAdmin()&&!isManager())return;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&(!coordFilterUid||u.uid===coordFilterUid));
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&(!coordFilterUid||u.uid===coordFilterUid));
   const mo=new Date().getMonth(),yr=new Date().getFullYear();
   const moStr=`${yr}-${String(mo+1).padStart(2,'0')}`;
   let humorMap={};
@@ -1302,7 +1339,7 @@ async function renderCompTable(){
 // CHARTS
 function renderCharts(){
   if(!isAdmin()&&!isManager())return;
-  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&(!coordFilterUid||u.uid===coordFilterUid));
+  const cs=Object.values(users).filter(u=>u.status==='active'&&u.role!=='coordinator'&&u.role!=='admin'&&u.role!=='manager'&&(!coordFilterUid||u.uid===coordFilterUid));
   const now=new Date();
   const mo=now.getMonth(),yr=now.getFullYear();
   const moStr=`${yr}-${String(mo+1).padStart(2,'0')}`;
