@@ -694,7 +694,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
       <div id="k-cmt-sec" style="display:none;margin-top:16px;border-top:1px solid var(--bd);padding-top:14px">
         <div style="font-size:10px;font-family:var(--fm);letter-spacing:1px;color:var(--t3);text-transform:uppercase;margin-bottom:10px">Comentários</div>
         <div id="k-cmt-list"></div>
-        <div class="cmt-row"><input class="cmt-input" type="text" id="k-cmt-in" placeholder="Adicionar comentário..." onkeydown="if(event.key==='Enter'){event.preventDefault();addCmt();}"><button class="btn-sub" onclick="addCmt()" style="padding:8px 14px;font-size:12px">Enviar</button></div>
+        <div class="cmt-row"><input class="cmt-input" type="text" id="k-cmt-in" placeholder="Adicionar comentário..." onkeydown="if(event.key==='Enter'){event.preventDefault();addCmt();}"><button id="btn-cmt-send" class="btn-sub" onclick="addCmt()" style="padding:8px 14px;font-size:12px">Enviar</button></div>
       </div>
     </div>
     <div class="mf"><button class="btn-del" id="k-del" onclick="delK()" style="display:none">Excluir</button><button class="btn-sec" onclick="closeMo('mo-k')" style="display:inline-flex!important;visibility:visible!important">Cancelar</button><button class="btn-sub" onclick="saveK()">Salvar</button></div>
@@ -1274,27 +1274,48 @@ window.openKModal=async(id=null,preC=null)=>{
   editKId=id;const admin=isAdmin();
   $('mo-k-t').textContent=id?'Editar Kadai':'Novo Kadai';
   if(id){const _k=kadais.find(x=>x.id===id);$('k-del').style.display=(isAdmin()||isManager()||(_k&&_k.consultantId===CU.uid))?'':'none';}else{$('k-del').style.display='none';}$('k-cmt-sec').style.display=id?'':'none';
-  if(id){const k=kadais.find(x=>x.id===id);if(k){sv('k-title',k.title);sv('k-cons',k.consultantId);sv('k-cat',k.category);sv('k-status',k.status);sv('k-due',k.dueDate||'');sv('k-note',k.note||'');}renderCmts(id);}
+  if(id){const k=kadais.find(x=>x.id===id);if(k){sv('k-title',k.title);sv('k-cons',k.consultantId);sv('k-cat',k.category);sv('k-status',k.status);sv('k-due',k.dueDate||'');sv('k-note',k.note||'');renderCmtsInline(Array.isArray(k.comments)?k.comments:[]);}}
   else{sv('k-title','');sv('k-cons',preC||CU.uid);sv('k-cat','processo');sv('k-status','backlog');sv('k-due','');sv('k-note','');}
   openMo('mo-k');
 };
+function renderCmtsInline(cmts){
+  const el=$('k-cmt-list');if(!el)return;
+  el.innerHTML=!cmts||cmts.length===0
+    ?'<div style="font-size:12px;color:var(--t3);margin-bottom:8px">Sem comentários.</div>'
+    :cmts.map(c=>{
+      const ts=c.ts?new Date(c.ts).toLocaleString('pt-BR'):'agora';
+      return `<div class="comment"><div class="comment-meta">${c.author} · ${ts}</div>${c.text}</div>`;
+    }).join('');
+  el.scrollTop=el.scrollHeight;
+}
 async function renderCmts(kid){
   try{const snap=await getDocs(collection(db,`kadais/${kid}/comments`));const cmts=snap.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));$('k-cmt-list').innerHTML=cmts.length===0?'<div style="font-size:12px;color:var(--t3);margin-bottom:8px">Sem comentários.</div>':cmts.map(c=>`<div class="comment"><div class="comment-meta">${c.author} · ${c.createdAt?new Date(c.createdAt.seconds*1000).toLocaleString('pt-BR'):'agora'}</div>${c.text}</div>`).join('');}catch(e){}
 }
 window.addCmt=async()=>{
   if(!editKId){showToast('Nenhum Kadai selecionado.','err');return;}
   const txt=$('k-cmt-in').value.trim();
-  if(!txt){showToast('Digite um comentário.','err');return;}
-  const btn=document.querySelector('#k-cmt-sec .btn-sub');
+  if(!txt){showToast('Digite um comentario.','err');return;}
+  const btn=$('btn-cmt-send');
   if(btn){btn.disabled=true;btn.textContent='Enviando...';}
   try{
-    await addDoc(collection(db,`kadais/${editKId}/comments`),{author:UP.name,text:txt,uid:CU.uid,createdAt:serverTimestamp()});
-    // Save lastComment to kadai doc for quick display in card
-    await updateDoc(doc(db,'kadais',editKId),{lastComment:{text:txt,author:UP.name,updatedAt:serverTimestamp()}});
+    // Salva como array no proprio doc — sem subcoleção, sem problema de permissão
+    const k=kadais.find(x=>x.id===editKId);
+    const prev=Array.isArray(k?.comments)?k.comments:[];
+    const isoNow=new Date().toISOString();
+    const newCmt={author:UP.name,text:txt,uid:CU.uid,ts:isoNow};
+    // lastComment usa string ISO — sem serverTimestamp dentro de array
+    await updateDoc(doc(db,'kadais',editKId),{
+      comments:[...prev,newCmt],
+      lastComment:{text:txt,author:UP.name,ts:isoNow},
+      updatedAt:serverTimestamp()
+    });
     $('k-cmt-in').value='';
-    await renderCmts(editKId);
-    showToast('Comentário adicionado!','ok');
-  }catch(e){showToast('Erro ao enviar comentário.','err');console.error(e);}
+    const all=[...prev,newCmt];
+    const idx=kadais.findIndex(x=>x.id===editKId);
+    if(idx>=0)kadais[idx]={...kadais[idx],comments:all,lastComment:{text:txt,author:UP.name}};
+    renderCmtsInline(all);
+    showToast('Comentario adicionado!','ok');
+  }catch(e){showToast('Erro ao enviar comentario: '+e.code,'err');console.error(e);}
   finally{if(btn){btn.disabled=false;btn.textContent='Enviar';}}
 };
 window.saveK=async()=>{
