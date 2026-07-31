@@ -694,7 +694,7 @@ input,select,textarea{font-family:inherit;outline:none;border:none;background:no
       <div id="k-cmt-sec" style="display:none;margin-top:16px;border-top:1px solid var(--bd);padding-top:14px">
         <div style="font-size:10px;font-family:var(--fm);letter-spacing:1px;color:var(--t3);text-transform:uppercase;margin-bottom:10px">Comentários</div>
         <div id="k-cmt-list"></div>
-        <div class="cmt-row"><input class="cmt-input" type="text" id="k-cmt-in" placeholder="Adicionar comentário..."><button class="btn-sub" onclick="addCmt()" style="padding:8px 14px;font-size:12px">Enviar</button></div>
+        <div class="cmt-row"><input class="cmt-input" type="text" id="k-cmt-in" placeholder="Adicionar comentário..." onkeydown="if(event.key==='Enter'){event.preventDefault();addCmt();}"><button class="btn-sub" onclick="addCmt()" style="padding:8px 14px;font-size:12px">Enviar</button></div>
       </div>
     </div>
     <div class="mf"><button class="btn-del" id="k-del" onclick="delK()" style="display:none">Excluir</button><button class="btn-sec" onclick="closeMo('mo-k')" style="display:inline-flex!important;visibility:visible!important">Cancelar</button><button class="btn-sub" onclick="saveK()">Salvar</button></div>
@@ -936,7 +936,8 @@ function populateSels(){
   const cs=Object.values(users).filter(u=>u.status==='active');
   ['ev-cons','k-cons'].forEach(id=>{
     const sel=$(id);if(!sel)return;const cur=sel.value;
-    sel.innerHTML=cs.map(u=>`<option value="${u.uid}">${u.name}</option>`).join('');
+    const blank=id==='ev-cons'?`<option value="">— Selecionar consultor —</option>`:'';
+    sel.innerHTML=blank+cs.map(u=>`<option value="${u.uid}">${u.name}</option>`).join('');
     if(cur)sel.value=cur;
   });
   const gc=$('g-cons');if(gc){const cur=gc.value;gc.innerHTML=`<option value="">Time</option>`+cs.map(u=>`<option value="${u.uid}">${u.name}</option>`).join('');if(cur)gc.value=cur;}
@@ -1186,6 +1187,7 @@ window.openEvModal=function(id=null){
     if(sel&&hasVisit)sel.value='visit';
     sv('ev-title','');sv('ev-start',today());sv('ev-end','');sv('ev-note','');
     if(!admin&&!isManager())sv('ev-cons',CU.uid);
+    else sv('ev-cons','');
   }
   openMo('mo-ev');
   // Forçar após render do modal — select precisa estar visível para ler valor corretamente
@@ -1198,6 +1200,7 @@ window.openEvModal=function(id=null){
 };
 window.saveEv=async()=>{
   const cid=(isAdmin()||isManager())?v('ev-cons'):CU.uid,title=v('ev-title'),start=v('ev-start');
+  if((isAdmin()||isManager())&&!cid){showToast('Selecione um consultor.','err');return;}
   if(!title||!start){showToast('Preencha título e data.','err');return;}
   const type=v('ev-type');
   // Ata: mostrar para qualquer tipo exceto férias
@@ -1279,12 +1282,20 @@ async function renderCmts(kid){
   try{const snap=await getDocs(collection(db,`kadais/${kid}/comments`));const cmts=snap.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));$('k-cmt-list').innerHTML=cmts.length===0?'<div style="font-size:12px;color:var(--t3);margin-bottom:8px">Sem comentários.</div>':cmts.map(c=>`<div class="comment"><div class="comment-meta">${c.author} · ${c.createdAt?new Date(c.createdAt.seconds*1000).toLocaleString('pt-BR'):'agora'}</div>${c.text}</div>`).join('');}catch(e){}
 }
 window.addCmt=async()=>{
-  if(!editKId)return;
-  const txt=$('k-cmt-in').value.trim();if(!txt)return;
-  await addDoc(collection(db,`kadais/${editKId}/comments`),{author:UP.name,text:txt,uid:CU.uid,createdAt:serverTimestamp()});
-  // Save lastComment to kadai doc for quick display in card
-  await updateDoc(doc(db,'kadais',editKId),{lastComment:{text:txt,author:UP.name,updatedAt:serverTimestamp()}});
-  $('k-cmt-in').value='';renderCmts(editKId);
+  if(!editKId){showToast('Nenhum Kadai selecionado.','err');return;}
+  const txt=$('k-cmt-in').value.trim();
+  if(!txt){showToast('Digite um comentário.','err');return;}
+  const btn=document.querySelector('#k-cmt-sec .btn-sub');
+  if(btn){btn.disabled=true;btn.textContent='Enviando...';}
+  try{
+    await addDoc(collection(db,`kadais/${editKId}/comments`),{author:UP.name,text:txt,uid:CU.uid,createdAt:serverTimestamp()});
+    // Save lastComment to kadai doc for quick display in card
+    await updateDoc(doc(db,'kadais',editKId),{lastComment:{text:txt,author:UP.name,updatedAt:serverTimestamp()}});
+    $('k-cmt-in').value='';
+    await renderCmts(editKId);
+    showToast('Comentário adicionado!','ok');
+  }catch(e){showToast('Erro ao enviar comentário.','err');console.error(e);}
+  finally{if(btn){btn.disabled=false;btn.textContent='Enviar';}}
 };
 window.saveK=async()=>{
   const title=v('k-title'),cid=(isAdmin()||isManager())?v('k-cons'):CU.uid;if(!title||!cid){showToast('Preencha título e consultor.','err');return;}
